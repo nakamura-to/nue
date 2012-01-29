@@ -3,7 +3,13 @@ nue — An async control-flow library suited for the node event loop
 
 nue is an async control-flow library.
 
-## Examples
+## Installing
+
+```
+$ npm install nue
+```
+
+## Example
 
 > JavaScript
 
