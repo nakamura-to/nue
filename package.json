@@ -1,7 +1,6 @@
 {
     "name"          : "nue",
     "description"   : "An async control-flow library suited for the node event loop.",
-    "homepage"      : "http://nakamura-to.github.com/nue/",
     "keywords"      : ["control-flow", "async"],
     "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",
     "contributors"  : [],
