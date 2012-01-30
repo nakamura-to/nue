@@ -1,75 +1,68 @@
-var nue = require('../lib/nue.js');
+var nue = require('../lib/nue');
+var assert = require('assert');
 
-step1();
-
-function step1() {
-  console.log('step1 start');
-  nue.parallel([
-    function(){
-      console.log('aaa:');
-    },
-    function(){
-      console.log('bbb:');
-    }], 
-    function(err){
-      if (err) throw err;
-      console.log('step1 end\n');
-      step2();
+describe('spike', function() {
+  it('should complete parallel execution', function (done) {
+    var result = 0;
+    nue.parallel(
+      [ function(i){ result += i; },
+        function(i){ result += i; },
+        function(i){ result += i; },
+        function(i){ result += i; },
+        function(i){ result += i; } ],
+      function(err){
+        if (err) throw err;
+        assert.strictEqual(result, 5);
+        done();
+      }
+    )(1);
+  });
+  it('should complete series execution"', function (done) {
+    nue.series(
+      [ function (i) { this.next(++i); },
+        function (i) { this.next(++i); },
+        function (i) { this.next(++i); },
+        function (i) { this.next(++i); },
+        function (i) { this.next(++i); } ],
+      function (i) {
+        assert.strictEqual(i, 6);
+        done();
+      }
+    )(1);
+  });
+  it('should complete parallel queue execution"', function (done) {
+    var result = 0;
+    var q = nue.parallelQueue(
+      function (i){
+        result += i;
+      },
+      function (err) {
+        if (err) throw err;
+        assert.strictEqual(result, 45);
+        done();
+      }
+    );
+    for (var i = 0; i < 10; i++) {
+      q.push(i);
     }
-  );
-}
-
-function step2() {
-  console.log('step2 start');
-  nue.series([
-    function () {
-      console.log('ccc:');
-      this.next('test', 2);
-    },
-    function (a, b){
-      console.log('ddd: ' + a + ', ' + b);
-      this.next();
-    }],
-    function (err) {
-      if (err) throw err;
-      console.log('step2 end\n');
-      step3();
+    q.complete();
+  });
+  it('should complete series queue execution"', function (done) {
+    var result = 0;
+    var q = nue.seriesQueue(
+      function (i){
+        result += i;
+        this.next();
+      },
+      function (err) {
+        if (err) throw err;
+        assert.strictEqual(result, 45);
+        done();
+      }
+    );
+    for (var i = 0; i < 10; i++) {
+      q.push(i);
     }
-  );
-}
-
-function step3() {
-  console.log("step3 start");
-  var q = nue.parallelQueue(
-    function (data){
-      console.log('data: ' + data);
-    },
-    function (err) {
-      if (err) throw err;
-      console.log('step3 end\n');
-      step4();
-    }
-  );
-  for (var i = 0; i < 5; i++) {
-    q.push(i);  
-  }
-  q.complete();
-}
-
-function step4() {
-  console.log("step4 start");
-  var q = nue.seriesQueue(
-    function (data){
-      console.log('data: ' + data);
-      this.next();
-    },
-    function (err) {
-      if (err) throw err;
-      console.log('step4 end\n');
-    }
-  );
-  for (var i = 0; i < 5; i++) {
-    q.push(i);
-  }
-  q.complete();
-}
+    q.complete();
+  });
+});
