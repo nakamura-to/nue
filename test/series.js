@@ -2,17 +2,27 @@ var nue = require('../lib/nue');
 var assert = require('assert');
 
 describe('series', function() {
-  it('should invoke next function', function (done) {
+  it('should chain functions', function (done) {
     nue.series(
       function () {
+        assert.strictEqual(this.index, 0);
         this.next();
       },
       function () {
+        assert.strictEqual(this.index, 1);
+        this.next();
+      },
+      function () {
+        assert.strictEqual(this.index, 2);
+        this.next();
+      },
+      function () {
+        assert.strictEqual(this.index, 3);
         done();
       }
     )();
   });
-  it('should pass arguments to the first function"', function (done) {
+  it('should accept arguments on startup', function (done) {
     nue.series(
       function (number, boolean, string) {
         assert.strictEqual(number, 1);
@@ -22,7 +32,7 @@ describe('series', function() {
       }
     )(1, true, 'hoge');
   });
-  it('should pass arguments to the next function"', function (done) {
+  it('should accept arguments from the previous function"', function (done) {
     nue.series(
       function () {
         this.next(1, true, 'hoge');
@@ -31,21 +41,12 @@ describe('series', function() {
         assert.strictEqual(number, 1);
         assert.strictEqual(boolean, true);
         assert.strictEqual(string, 'hoge');
-        done();
-      }
-    )();
-  });
-  it('should pass arguments to the callback"', function (done) {
-    nue.series([
-      function () {
-        this.next(1);
+        this.next(2, false, 'foo');
       },
-      function (i) {
-        this.next(null, ++i);
-      }],
-      function (err, data) {
-        if (err) throw err;
-        assert.strictEqual(data, 2);
+      function (number, boolean, string) {
+        assert.strictEqual(number, 2);
+        assert.strictEqual(boolean, false);
+        assert.strictEqual(string, 'foo');
         done();
       }
     )();
