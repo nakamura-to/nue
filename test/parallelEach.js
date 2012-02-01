@@ -1,9 +1,11 @@
-var parallelEach = require('../lib/nue').parallelEach;
+var nue = require('../lib/nue');
+var start = nue.start;
+var parallelEach = nue.parallelEach;
 var assert = require('assert');
 
 describe('parallelEach', function() {
   it('should handle results in the end function', function (done) {
-    parallelEach(
+    start([1, 2, 3], parallelEach(
       function (values) {
         this.each(values);
       },
@@ -18,10 +20,10 @@ describe('parallelEach', function() {
         assert.strictEqual(results[2], 6);
         done();
       }
-    )([1, 2, 3]);
+    ));
   });
   it('should accept batch size', function (done) {
-    parallelEach(1)(
+    start([1, 2, 3], parallelEach(1)(
       function (values) {
         this.each(values);
       },
@@ -36,11 +38,11 @@ describe('parallelEach', function() {
         assert.strictEqual(results[2], 6);
         done();
       }
-    )([1, 2, 3]);
+    ));
   });
 
   it('should handle err in the end function', function (done) {
-    parallelEach(
+    start([1, 2, 3], parallelEach(
       function (values) {
         this.each(values);
       },
@@ -52,6 +54,6 @@ describe('parallelEach', function() {
         assert.strictEqual(results, null);
         done();
       }
-    )([1, 2, 3]);
+    ));
   });
 });

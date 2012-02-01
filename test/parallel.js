@@ -1,9 +1,11 @@
-var parallel = require('../lib/nue').parallel;
+var nue = require('../lib/nue');
+var start = nue.start;
+var parallel = nue.parallel;
 var assert = require('assert');
 
 describe('parallel', function() {
   it('should handle results in the end function', function (done) {
-    parallel(
+    start(parallel(
       function () {
         this.fork();
       },
@@ -32,10 +34,10 @@ describe('parallel', function() {
         assert.strictEqual(results[2], 3);
         done();
       }
-    )();
+    ));
   });
   it('should handle err in the end function', function (done) {
-    parallel([
+    start(parallel([
       function () {
         this.join(1);
       },
@@ -50,10 +52,10 @@ describe('parallel', function() {
         assert.strictEqual(results, null);
         done();
       }
-    )();
+    ));
   });
   it('should accept arguments', function (done) {
-    parallel(
+    start(1, 2, 3, parallel(
       function (a, b, c) {
         this.fork(a, b, c);
       },
@@ -79,10 +81,10 @@ describe('parallel', function() {
         assert.strictEqual(results[2], 3);
         done();
       }
-    )(1, 2, 3);
+    ));
   });
   it('should work without begin function', function (done) {
-    parallel([
+    start(parallel([
       function () {
         this.join(1);
       },
@@ -95,10 +97,10 @@ describe('parallel', function() {
       function (err, results) {
         done();
       }
-    )();
+    ));
   });
   it('should work without end function', function () {
-    parallel(
+    start(parallel(
       function () {
         this.fork();
       },
@@ -113,6 +115,6 @@ describe('parallel', function() {
           this.join(3);
         }
       ]
-    )();
+    ));
   });
 });

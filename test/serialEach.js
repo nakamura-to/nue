@@ -1,9 +1,11 @@
-var serialEach = require('../lib/nue').serialEach;
+var nue = require('../lib/nue');
+var start = nue.start;
+var serialEach = nue.serialEach;
 var assert = require('assert');
 
 describe('serialEach', function() {
   it('should handle results in the end function', function (done) {
-    serialEach(
+    start([1, 2, 3], serialEach(
       function (values) {
         this.each(values);
       },
@@ -19,6 +21,6 @@ describe('serialEach', function() {
         assert.strictEqual(results[2], 6);
         done();
       }
-    )([1, 2, 3]);
+    ));
   });
 });

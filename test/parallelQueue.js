@@ -1,4 +1,5 @@
-var parallelQueue = require('../lib/nue').parallelQueue;
+var nue = require('../lib/nue');
+var parallelQueue = nue.parallelQueue;
 var assert = require('assert');
 
 describe('parallelQueue', function() {
