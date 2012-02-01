@@ -5,7 +5,7 @@ describe('serialQueue', function() {
   it('should chain queued tasks', function (done) {
     var q = serialQueue(
       function (i){
-        if (this.isLast()) {
+        if (this.isLast) {
           done();
         } else {
           this.next();
@@ -24,7 +24,7 @@ describe('serialQueue', function() {
           number = 0;
           string = 'hoge';
         }
-        if (this.isLast()) {
+        if (this.isLast) {
           assert.strictEqual(number, 6);
           assert.strictEqual(string, 'hoge');
           done();

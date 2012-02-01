@@ -1,20 +1,19 @@
-var serial = require('../lib/nue').serial;
+var nue = require('../lib/nue');
+var start = nue.start;
+var serial = nue.serial;
 var fs = require('fs');
 
-fs.readFile('LICENSE', 
-  serial(
-    function(err, data){
-      if (err) throw err;
-      console.log(data.toString());
-      fs.readFile('package.json', this.next);
-    },
-    function(err, data){
-      if (err) throw err;
-      console.log(data.toString());
-      this.next();
-    },
-    function(){
-      console.log('end 1');
-    }
-  )
-);
+start(serial(
+  function(){
+    fs.readFile('LICENSE', this.next);
+  },
+  function(err, data){
+    if (err) throw err;
+    console.log(data.length);
+    fs.readFile('README.md', this.next);
+  },
+  function(err, data){
+    if (err) throw err;
+    console.log(data.length);
+  }
+));
