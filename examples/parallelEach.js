@@ -8,7 +8,7 @@ start(parallel(
   function () {
     this.each('LICENSE', 'README.md');
   },
-  function (name, err, result) {
+  function (name) {
     var self = this;
     fs.readFile(name, function (err, data) {
       if (err) this.end(err);
