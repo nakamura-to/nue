@@ -1,8 +1,8 @@
-var nue = require('../lib/nue');
+var serial = require('../lib/nue').serial;
 var fs = require('fs');
 
 fs.readFile('LICENSE', 
-  nue.series(
+  serial(
     function(err, data){
       if (err) throw err;
       console.log(data.toString());
@@ -15,12 +15,6 @@ fs.readFile('LICENSE',
     },
     function(){
       console.log('end 1');
-      this.next('next');
-    }, 
-    nue.series(
-      function(data){
-        console.log(data);
-      }
-    )
+    }
   )
 );

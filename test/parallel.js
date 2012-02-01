@@ -1,24 +1,29 @@
-var nue = require('../lib/nue');
+var parallel = require('../lib/nue').parallel;
 var assert = require('assert');
 
 describe('parallel', function() {
-  it('should handle results in the callback', function (done) {
-    nue.parallel([
+  it('should handle results in the end function', function (done) {
+    parallel(
       function () {
-        assert.strictEqual(this.index, 0);
-        this.join(1);
+        this.fork();
       },
-      function () {
-        var self = this;
-        assert.strictEqual(this.index, 1);
-        setTimeout(function () {
-          self.join(2);
-        }, 10)
-      },
-      function () {
-        assert.strictEqual(this.index, 2);
-        this.join(3);
-      }],
+      [
+        function () {
+          assert.strictEqual(this.index, 0);
+          this.join(1);
+        },
+        function () {
+          var self = this;
+          assert.strictEqual(this.index, 1);
+          setTimeout(function () {
+            self.join(2);
+          }, 10)
+        },
+        function () {
+          assert.strictEqual(this.index, 2);
+          this.join(3);
+        }
+      ],
       function (err, results) {
         assert.strictEqual(err, null);
         assert.strictEqual(results.length, 3, results);
@@ -29,8 +34,8 @@ describe('parallel', function() {
       }
     )();
   });
-  it('should handle err in the callback', function (done) {
-    nue.parallel([
+  it('should handle err in the end function', function (done) {
+    parallel([
       function () {
         this.join(1);
       },
@@ -48,31 +53,36 @@ describe('parallel', function() {
     )();
   });
   it('should accept arguments', function (done) {
-    nue.parallel([
-      function (a, b) {
-        this.join(a + b);
+    parallel(
+      function (a, b, c) {
+        this.fork(a, b, c);
       },
-      function (a, b) {
-        var self = this;
-        setTimeout(function () {
-          self.join(a + b);
-        }, 10)
-      },
-      function (a, b) {
-        this.join(a + b);
-      }],
+      [ 
+        function (a) {
+          this.join(a);
+        },
+        function (b) {
+          var self = this;
+          setTimeout(function () {
+            self.join(b);
+          }, 10);
+        },
+        function (c) {
+          this.join(c);
+        }
+      ],
       function (err, results) {
         assert.strictEqual(err, null);
         assert.strictEqual(results.length, 3, results);
-        assert.strictEqual(results[0], 3);
-        assert.strictEqual(results[1], 3);
+        assert.strictEqual(results[0], 1);
+        assert.strictEqual(results[1], 2);
         assert.strictEqual(results[2], 3);
         done();
       }
-    )(1, 2);
+    )(1, 2, 3);
   });
-  it('should work without callback', function () {
-    nue.parallel(
+  it('should work without begin function', function (done) {
+    parallel([
       function () {
         this.join(1);
       },
@@ -81,8 +91,28 @@ describe('parallel', function() {
       },
       function () {
         this.join(3);
+      }],
+      function (err, results) {
+        done();
       }
     )();
   });
-
+  it('should work without end function', function () {
+    parallel(
+      function () {
+        this.fork();
+      },
+      [
+        function () {
+          this.join(1);
+        },
+        function () {
+          this.join(2);
+        },
+        function () {
+          this.join(3);
+        }
+      ]
+    )();
+  });
 });

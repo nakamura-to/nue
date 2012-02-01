@@ -1,13 +1,14 @@
-var nue = require('../lib/nue');
+var serialQueue = require('../lib/nue').serialQueue;
 var assert = require('assert');
 
-describe('seriesQueue', function() {
+describe('serialQueue', function() {
   it('should chain queued tasks', function (done) {
-    var q = nue.seriesQueue(
+    var q = serialQueue(
       function (i){
-        this.next();
-        if (i === 9) {
+        if (this.isLast()) {
           done();
+        } else {
+          this.next();
         }
       }
     );
@@ -17,17 +18,18 @@ describe('seriesQueue', function() {
     q.complete();
   });
   it('should accept arguments from the previous task', function (done) {
-    var q = nue.seriesQueue(
+    var q = serialQueue(
       function (value, number, string){
         if (this.index === 0) {
           number = 0;
           string = 'hoge';
         }
-        this.next(value + number, string);
-        if (this.index === 4) {
+        if (this.isLast()) {
           assert.strictEqual(number, 6);
           assert.strictEqual(string, 'hoge');
           done();
+        } else {
+          this.next(value + number, string);
         }
       }
     );

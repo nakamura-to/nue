@@ -1,9 +1,9 @@
-var nue = require('../lib/nue');
+var parallelQueue = require('../lib/nue').parallelQueue;
 var assert = require('assert');
 
 describe('parallelQueue', function() {
   it('should handle results in the callback', function (done) {
-    var q = nue.parallelQueue(
+    var q = parallelQueue(
       function (i) {
         this.join(i * 2);
       },
@@ -24,7 +24,7 @@ describe('parallelQueue', function() {
     q.complete();
   });
   it('should handle err in the callback', function (done) {
-    var q = nue.parallelQueue(
+    var q = parallelQueue(
       function (i) {
         if (i === 3) {
           this.err('ERROR:' + i);
