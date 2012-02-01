@@ -1,7 +1,7 @@
-nue — An async control-flow library suited for the node event loop
-===================================================================
+nue — An async control-flow library
+===================================
 
-nue is an async control-flow library.
+nue is an async control-flow library suited for the node event loop.
 
 ## Installing
 
@@ -11,112 +11,123 @@ $ npm install nue
 
 ## Example
 
-> JavaScript
+### serial
 
 ```js
 var nue = require('nue');
+var start = nue.start;
+var serial = nue.serial;
+var fs = require('fs');
 
-step1();
-
-function step1() {
-  console.log('step1 start');
-  nue.parallel([
-    function(){
-      console.log('aaa');
-    },
-    function(){
-      console.log('bbb');
-    }], 
-    function(err){
-      if (err) throw err;
-      console.log('step1 end\n');
-      step2();
-    }
-  );
-}
-
-function step2() {
-  console.log('step2 start');
-  nue.series([
-    function () {
-      console.log('ccc');
-      this.next('test', 2);
-    },
-    function (a, b){
-      console.log('ddd ' + a + b);
-      this.next();
-    }],
-    function (err) {
-      if (err) throw err;
-      console.log('step2 end\n');
-      step3();
-    }
-  );
-}
-
-function step3() {
-  console.log("step3 start");
-  var q = nue.parallelQueue(
-    function (data){
-      console.log('data: ' + data);
-    },
-    function (err) {
-      if (err) throw err;
-      console.log('step3 end\n');
-      step4();
-    }
-  );
-  for (var i = 0; i < 10; i++) {
-    q.push(i);  
+start(serial(
+  function (){
+    this.data = [];
+    fs.readFile('file1', this.next);
+  },
+  function (err, data){
+    if (err) throw this.end(err);
+    this.data.push(data.length);
+    fs.readFile('file2', this.next);
+  },
+  function (err, data){
+    if (err) throw this.end(err);
+    this.data.push(data.length);
+    this.next();
+  },
+  function (err) {
+    if (err) throw err;
+    console.log(this.data);
   }
-  q.complete();
-}
-
-function step4() {
-  console.log("step4 start");
-  var q = nue.seriesQueue(
-    function (data){
-      console.log('data: ' + data);
-      this.next();
-    },
-    function (err) {
-      if (err) throw err;
-      console.log('step4 end\n');
-    }
-  );
-  for (var i = 0; i < 10; i++) {
-    q.push(i);
-  }
-  q.complete();
-}
+));
 ```
 
-> Result
+### serialEach
 
+```js
+var nue = require('nue');
+var start = nue.start;
+var serial = nue.serial;
+var serialEach = nue.serialEach;
+var fs = require('fs');
+
+start(serialEach(
+  function () {
+    this.data = 0;
+    this.each('file1', 'file2', 'file3');
+  },
+  function (name) {
+    var self = this;
+    fs.readFile(name, function (err, data) {
+      if (err) throw err;
+      self.data += data.length;
+      self.next(self.data);
+    });
+  },
+  function (result) {
+    console.log(result);
+  }
+));
 ```
-step1 start
-aaa:
-bbb:
-step1 end
 
-step2 start
-ccc:
-ddd: test, 2
-step2 end
+### parallel
 
-step3 start
-data: 0
-data: 1
-data: 2
-data: 3
-data: 4
-step3 end
+```js
+var nue = require('nue');
+var start = nue.start;
+var serial = nue.serial;
+var parallel = nue.parallel;
+var fs = require('fs');
 
-step4 start
-data: 0
-data: 1
-data: 2
-data: 3
-data: 4
-step4 end
+start(parallel(
+  function () {
+    this.fork('file1', 'file2');
+  },
+  [
+    function (name) {
+      var self = this;
+      fs.readFile(name, function (err, data) {
+        if (err) this.err(err);
+        self.join(data.length);
+      });
+    },
+    function (path) {
+      var self = this;
+      fs.stat(path, function (err, stats) {
+        if (err) this.err(err);
+        self.join(stats.isFile());
+      });
+    }
+  ],
+  function (err, results) {
+    if (err) throw err;
+    console.log(results);
+  }
+));
+```
+
+### parallelEach
+
+```js
+var nue = require('nue');
+var start = nue.start;
+var serial = nue.serial;
+var parallelEach = nue.parallelEach;
+var fs = require('fs');
+
+start(parallelEach(
+  function () {
+    this.each('file1', 'file2');
+  },
+  function (name) {
+    var self = this;
+    fs.readFile(name, function (err, data) {
+      if (err) this.end(err);
+      self.join(data.length);
+    });
+  },
+  function (err, results) {
+    if (err) throw err;
+    console.log(results);
+  }
+));
 ```
