@@ -19,7 +19,6 @@ describe('serial', function() {
         this.next();
       },
       function () {
-        assert.strictEqual(this.index, 3);
         done();
       }
     ));
@@ -39,7 +38,6 @@ describe('serial', function() {
         this.next();
       },
       function () {
-        assert.strictEqual(this.index, 3);
         done();
       }
     ));
@@ -100,6 +98,26 @@ describe('serial', function() {
       },
       function () {
         assert.strictEqual(this.data, 'abc');
+        done();
+      }
+    ));
+  });
+  it('should exit from chain', function (done) {
+    start(serial(
+      function () {
+        this.data = 'a';
+        this.next();
+      },
+      function () {
+        this.data += 'b';
+        this.end();
+      },
+      function () {
+        this.data += 'c';
+        this.next();
+      },
+      function () {
+        assert.strictEqual(this.data, 'ab');
         done();
       }
     ));

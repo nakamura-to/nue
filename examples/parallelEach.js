@@ -11,7 +11,7 @@ start(parallel(
   function (name, err, result) {
     var self = this;
     fs.readFile(name, function (err, data) {
-      if (err) this.err(err);
+      if (err) this.end(err);
       self.join(data.length);
     });
   },

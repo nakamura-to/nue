@@ -42,14 +42,14 @@ describe('parallel', function() {
         this.join(1);
       },
       function () {
-        this.err('ERROR');
+        this.end('ERROR');
       },
       function () {
         this.join(3);
       }],
       function (err, results) {
         assert.strictEqual(err, 'ERROR');
-        assert.strictEqual(results, null);
+        assert.strictEqual(results, undefined);
         done();
       }
     ));

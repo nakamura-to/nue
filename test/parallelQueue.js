@@ -28,12 +28,12 @@ describe('parallelQueue', function() {
     var q = parallelQueue(
       function (i) {
         if (i === 3) {
-          this.err('ERROR:' + i);
+          this.end('ERROR:' + i);
         }
       },
       function (err, results) {
         assert.strictEqual(err, 'ERROR:3');
-        assert.strictEqual(results, null);
+        assert.strictEqual(results, undefined);
         done();
       }
     );

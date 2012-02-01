@@ -47,11 +47,11 @@ describe('parallelEach', function() {
         this.each(values);
       },
       function () {
-        this.err('ERROR');
+        this.end('ERROR');
       },
       function (err, results) {
         assert.strictEqual(err, 'ERROR');
-        assert.strictEqual(results, null);
+        assert.strictEqual(results, undefined);
         done();
       }
     ));
