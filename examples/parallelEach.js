@@ -1,10 +1,10 @@
 var nue = require('../lib/nue');
 var start = nue.start;
 var serial = nue.serial;
-var parallel = nue.parallelEach;
+var parallelEach = nue.parallelEach;
 var fs = require('fs');
 
-start(parallel(
+start(parallelEach(
   function () {
     this.each('LICENSE', 'README.md');
   },

@@ -58,13 +58,14 @@ start(serialEach(
   function (name) {
     var self = this;
     fs.readFile(name, function (err, data) {
-      if (err) throw err;
+      if (err) throw this.end(err);
       self.data += data.length;
-      self.next(self.data);
+      self.next();
     });
   },
-  function (result) {
-    console.log(result);
+  function (err) {
+    if (err) throw err;
+    console.log(this.data);
   }
 ));
 ```

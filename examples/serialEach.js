@@ -1,10 +1,10 @@
 var nue = require('../lib/nue');
 var start = nue.start;
 var serial = nue.serial;
-var parallel = nue.serialEach;
+var serialEach = nue.serialEach;
 var fs = require('fs');
 
-start(parallel(
+start(serialEach(
   function () {
     this.data = 0;
     this.each('LICENSE', 'README.md', 'package.json');
@@ -12,12 +12,13 @@ start(parallel(
   function (name) {
     var self = this;
     fs.readFile(name, function (err, data) {
-      if (err) throw err;
+      if (err) throw this.end(err);
       self.data += data.length;
-      self.next(self.data);
+      self.next();
     });
   },
-  function (result) {
-    console.log(result);
+  function (err) {
+    if (err) throw err;
+    console.log(this.data);
   }
 ));
