@@ -53,19 +53,19 @@ var fs = require('fs');
 start(serialEach(
   function () {
     this.data = 0;
-    this.each('file1', 'file2', 'file3');
+    this.begin('file1', 'file2', 'file3');
   },
   function (name) {
     var self = this;
     fs.readFile(name, function (err, data) {
       if (err) throw this.end(err);
       self.data += data.length;
-      self.next();
+      self.next(null, self.data);
     });
   },
-  function (err) {
+  function (err, data) {
     if (err) throw err;
-    console.log(this.data);
+    console.log(data);
   }
 ));
 ```
@@ -117,7 +117,7 @@ var fs = require('fs');
 
 start(parallelEach(
   function () {
-    this.each('file1', 'file2');
+    this.begin('file1', 'file2');
   },
   function (name) {
     var self = this;

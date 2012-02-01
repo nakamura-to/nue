@@ -15,7 +15,6 @@ start(serial(
   },
   function(err, data){
     if (err) throw err;
-    this.data.push(data.length);
     console.log(this.data);
   }
 ));

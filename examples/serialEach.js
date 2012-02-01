@@ -7,18 +7,18 @@ var fs = require('fs');
 start(serialEach(
   function () {
     this.data = 0;
-    this.each('LICENSE', 'README.md', 'package.json');
+    this.begin('LICENSE', 'README.md', 'package.json');
   },
   function (name) {
     var self = this;
     fs.readFile(name, function (err, data) {
       if (err) throw this.end(err);
       self.data += data.length;
-      self.next();
+      self.next(null, self.data);
     });
   },
-  function (err) {
+  function (err, data) {
     if (err) throw err;
-    console.log(this.data);
+    console.log(data);
   }
 ));

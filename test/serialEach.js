@@ -7,7 +7,7 @@ describe('serialEach', function() {
   it('should handle results in the end function', function (done) {
     start([1, 2, 3], serialEach(
       function (values) {
-        this.each(values);
+        this.begin(values);
       },
       function (value, acc) {
         acc = acc || [];
@@ -27,7 +27,7 @@ describe('serialEach', function() {
     var context = {};
     serialEach(
       function (values) {
-        this.each(values);
+        this.begin(values);
       },
       function (value, acc) {
         acc = acc || [];
