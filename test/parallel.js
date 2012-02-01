@@ -117,4 +117,34 @@ describe('parallel', function() {
       ]
     ));
   });
+  it('should call the end function with the context for parallel', function (done) {
+    var context = {};
+    parallel(
+      function () {
+        this.fork();
+      },
+      [
+        function () {
+          assert.strictEqual(this.index, 0);
+          this.join(1);
+        },
+        function () {
+          this.join(2);
+        },
+        function () {
+          assert.strictEqual(this.index, 2);
+          this.join(3);
+        }
+      ],
+      function (err, results) {
+        assert.strictEqual(err, null);
+        assert.strictEqual(results.length, 3);
+        assert.strictEqual(results[0], 1);
+        assert.strictEqual(results[1], 2);
+        assert.strictEqual(results[2], 3);
+        assert.strictEqual(this, context);
+        done();
+      }
+    ).call(context);
+  });
 });

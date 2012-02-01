@@ -40,7 +40,6 @@ describe('parallelEach', function() {
       }
     ));
   });
-
   it('should handle err in the end function', function (done) {
     start([1, 2, 3], parallelEach(
       function (values) {
@@ -56,4 +55,25 @@ describe('parallelEach', function() {
       }
     ));
   });
+  it('should call the end function with the context for parallelEach', function (done) {
+    var context = {};
+    parallelEach(
+      function (values) {
+        this.each(values);
+      },
+      function (value) {
+        this.join(value * 2);
+      },
+      function (err, results) {
+        assert.strictEqual(err, null);
+        assert.strictEqual(results.length, 3);
+        assert.strictEqual(results[0], 2);
+        assert.strictEqual(results[1], 4);
+        assert.strictEqual(results[2], 6);
+        assert.strictEqual(this, context);
+        done();
+      }
+    ).call(context, [1, 2, 3]);
+  });
+
 });
