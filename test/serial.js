@@ -84,4 +84,25 @@ describe('serial', function() {
       }
     ));
   });
+  it('should share data', function (done) {
+    start(serial(
+      function () {
+        this.data = 'a'; 
+        this.next();
+      },
+      function () {
+        this.data += 'b';
+        this.next();
+      },
+      function () {
+        this.data += 'c';
+        this.next();
+      },
+      function () {
+        assert.strictEqual(this.data, 'abc');
+        done();
+      }
+    ));
+  });
+
 });
