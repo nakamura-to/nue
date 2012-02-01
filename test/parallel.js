@@ -26,7 +26,7 @@ describe('parallel', function() {
       ],
       function (err, results) {
         assert.strictEqual(err, null);
-        assert.strictEqual(results.length, 3, results);
+        assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 1);
         assert.strictEqual(results[1], 2);
         assert.strictEqual(results[2], 3);
