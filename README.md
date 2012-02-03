@@ -46,26 +46,23 @@ start(serial(
 ```js
 var nue = require('nue');
 var start = nue.start;
-var serial = nue.serial;
 var serialEach = nue.serialEach;
 var fs = require('fs');
 
 start(serialEach(
   function () {
-    this.data = 0;
     this.begin('file1', 'file2', 'file3');
   },
   function (name) {
     var self = this;
     fs.readFile(name, function (err, data) {
       if (err) throw this.end(err);
-      self.data += data.length;
-      self.next(null, self.data);
+      self.next(data.length);
     });
   },
-  function (err, data) {
+  function (err, results) {
     if (err) throw err;
-    console.log(data);
+    console.log(results);
   }
 ));
 ```
@@ -75,7 +72,6 @@ start(serialEach(
 ```js
 var nue = require('nue');
 var start = nue.start;
-var serial = nue.serial;
 var parallel = nue.parallel;
 var fs = require('fs');
 
@@ -111,7 +107,6 @@ start(parallel(
 ```js
 var nue = require('nue');
 var start = nue.start;
-var serial = nue.serial;
 var parallelEach = nue.parallelEach;
 var fs = require('fs');
 

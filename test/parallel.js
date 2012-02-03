@@ -11,18 +11,15 @@ describe('parallel', function() {
       },
       [
         function () {
-          assert.strictEqual(this.index, 0);
           this.join(1);
         },
         function () {
           var self = this;
-          assert.strictEqual(this.index, 1);
           setTimeout(function () {
             self.join(2);
           }, 10)
         },
         function () {
-          assert.strictEqual(this.index, 2);
           this.join(3);
         }
       ],
@@ -125,14 +122,12 @@ describe('parallel', function() {
       },
       [
         function () {
-          assert.strictEqual(this.index, 0);
           this.join(1);
         },
         function () {
           this.join(2);
         },
         function () {
-          assert.strictEqual(this.index, 2);
           this.join(3);
         }
       ],

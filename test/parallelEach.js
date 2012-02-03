@@ -7,7 +7,7 @@ describe('parallelEach', function() {
   it('should handle results in the end function', function (done) {
     start([1, 2, 3], parallelEach(
       function (values) {
-        this.begin(values);
+        this.fork(values);
       },
       function (value) {
         this.join(value * 2);
@@ -25,7 +25,7 @@ describe('parallelEach', function() {
   it('should accept batch size', function (done) {
     start([1, 2, 3], parallelEach(1)(
       function (values) {
-        this.begin(values);
+        this.fork(values);
       },
       function (value) {
         this.join(value * 2);
@@ -43,7 +43,7 @@ describe('parallelEach', function() {
   it('should handle err in the end function', function (done) {
     start([1, 2, 3], parallelEach(
       function (values) {
-        this.begin(values);
+        this.fork(values);
       },
       function () {
         this.end('ERROR');
@@ -59,7 +59,7 @@ describe('parallelEach', function() {
     var context = {};
     parallelEach(
       function (values) {
-        this.begin(values);
+        this.fork(values);
       },
       function (value) {
         this.join(value * 2);

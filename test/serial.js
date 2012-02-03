@@ -7,15 +7,12 @@ describe('serial', function() {
   it('should chain functions', function (done) {
     start(serial(
       function () {
-        assert.strictEqual(this.index, 0);
         this.next();
       },
       function () {
-        assert.strictEqual(this.index, 1);
         this.next();
       },
       function () {
-        assert.strictEqual(this.index, 2);
         this.next();
       },
       function () {
@@ -26,15 +23,12 @@ describe('serial', function() {
   it('should chain functions with specified batch size', function (done) {
     start(serial(1)(
       function () {
-        assert.strictEqual(this.index, 0);
         this.next();
       },
       function () {
-        assert.strictEqual(this.index, 1);
         this.next();
       },
       function () {
-        assert.strictEqual(this.index, 2);
         this.next();
       },
       function () {
@@ -102,7 +96,7 @@ describe('serial', function() {
       }
     ));
   });
-  it('should exit from chain', function (done) {
+  it('should exit from chain with the end function', function (done) {
     start(serial(
       function () {
         this.data = 'a';
@@ -122,5 +116,4 @@ describe('serial', function() {
       }
     ));
   });
-
 });

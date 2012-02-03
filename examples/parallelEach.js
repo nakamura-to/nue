@@ -6,7 +6,7 @@ var fs = require('fs');
 
 start(parallelEach(
   function () {
-    this.begin('LICENSE', 'README.md');
+    this.fork('LICENSE', 'README.md');
   },
   function (name) {
     var self = this;

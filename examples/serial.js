@@ -4,16 +4,21 @@ var serial = nue.serial;
 var fs = require('fs');
 
 start(serial(
-  function(){
+  function () {
     this.data = [];
     fs.readFile('LICENSE', this.next);
   },
-  function(err, data){
-    if (err) throw err;
+  function (err, data) {
+    if (err) this.end(err);
     this.data.push(data.length);
     fs.readFile('README.md', this.next);
   },
-  function(err, data){
+  function (err, data) {
+    if (err) this.end(err);
+    this.data.push(data.length);
+    this.next();
+  },
+  function (err) {
     if (err) throw err;
     console.log(this.data);
   }

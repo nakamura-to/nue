@@ -12,14 +12,14 @@ start(parallel(
     function (name) {
       var self = this;
       fs.readFile(name, function (err, data) {
-        if (err) this.err(err);
+        if (err) this.end(err);
         self.join(data.length);
       });
     },
     function (path) {
       var self = this;
       fs.stat(path, function (err, stats) {
-        if (err) this.err(err);
+        if (err) this.end(err);
         self.join(stats.isFile());
       });
     }

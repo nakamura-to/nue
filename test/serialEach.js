@@ -7,14 +7,12 @@ describe('serialEach', function() {
   it('should handle results in the end function', function (done) {
     start([1, 2, 3], serialEach(
       function (values) {
-        this.begin(values);
+        this.next(values);
       },
-      function (value, acc) {
-        acc = acc || [];
-        acc.push(value * 2);
-        this.next(acc);
+      function (value) {
+        this.next(value * 2);
       },
-      function (results) {
+      function (err, results) {
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 2);
         assert.strictEqual(results[1], 4);
@@ -27,18 +25,38 @@ describe('serialEach', function() {
     var context = {};
     serialEach(
       function (values) {
-        this.begin(values);
+        this.next(values);
       },
-      function (value, acc) {
-        acc = acc || [];
-        acc.push(value * 2);
-        this.next(acc);
+      function () {
+        this.next();
       },
-      function (results) {
+      function () {
+        assert.strictEqual(this, context);
+        done();
+      }
+    ).call(context, [1, 2, 3]);
+  });
+  it('should determine the first and the last', function (done) {
+    var context = {};
+    serialEach(
+      function (values) {
+        this.next(values);
+      },
+      function () {
+        var result;
+        if (this.isFirst) {
+          result = 'first';
+        }
+        if (this.isLast) {
+          result = 'last';
+        }
+        this.next(result);
+      },
+      function (err, results) {
         assert.strictEqual(results.length, 3);
-        assert.strictEqual(results[0], 2);
-        assert.strictEqual(results[1], 4);
-        assert.strictEqual(results[2], 6);
+        assert.strictEqual(results[0], 'first');
+        assert.strictEqual(results[1], undefined);
+        assert.strictEqual(results[2], 'last');
         assert.strictEqual(this, context);
         done();
       }
