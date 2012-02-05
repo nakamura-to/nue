@@ -9,9 +9,7 @@ nue is an async control-flow library suited for the node event loop.
 $ npm install nue
 ```
 
-## Examples
-
-### basic
+## Example
 
 ```js
 var nue = require('nue');
@@ -19,16 +17,45 @@ var flow = nue.flow;
 var fs = require('fs');
 
 var myFlow = flow(
-  function (){
+  function (file) {
+    fs.readFile(file, this.next);
+  },
+  function (err, data) {
+    console.log(data);
+  }
+);
+
+myFlow(['file1']);
+```
+
+## API
+
+### flow([Function tasks...]) -> Function
+
+Return a function which represents the control-flow.
+
+> Arguments
+
+* tasks: Optional. Tasks which are executed in series.
+ 
+> Example
+
+```js
+var nue = require('nue');
+var flow = nue.flow;
+var fs = require('fs');
+
+var myFlow = flow(
+  function () {
     this.data = [];
     fs.readFile('file1', this.next);
   },
-  function (err, data){
+  function (err, data) {
     if (err) throw this.end(err);
     this.data.push(data.length);
     fs.readFile('file2', this.next);
   },
-  function (err, data){
+  function (err, data) {
     if (err) throw this.end(err);
     this.data.push(data.length);
     this.next();
@@ -42,7 +69,21 @@ var myFlow = flow(
 myFlow();
 ```
 
-### each
+### each(Function begin(beginArg), Function process(processArg), Function end(err, results)) -> Function
+
+Return a function to process each value in series.
+
+> Arguments
+
+* begin: Required. Function. A callback to prepare values.
+* beginArg: Optional. Object. A value passed from the previous task.
+* process: Required. Function. A callback to process values.
+* processArg: Optional. Object. An each value passed from the begin callback.
+* end: Optional. Function. An optional callback to run once all the values have been processed. 
+* err: Required. Error. An error passed from the process callback.
+* results: Optional. Array. Values passed from the process callback.
+
+> Example
 
 ```js
 var nue = require('nue');
@@ -53,7 +94,7 @@ var fs = require('fs');
 var myFlow = flow(
   each(
     function () {
-      this.begin('file1', 'file2', 'file3');
+      this.next('file1', 'file2', 'file3');
     },
     function (name) {
       var self = this;
@@ -72,7 +113,20 @@ var myFlow = flow(
 myFlow();
 ```
 
-### parallel
+### parallel(Function begin(beginArg), Array tasks, Function end(err, results)) -> Function
+
+Return a function to process tasks in parallel.
+
+> Arguments
+
+* begin: Required. Function. A callback to prepare values.
+* beginArg: Optional. Object. A value passed from the previous task.
+* tasks: Required. Array. An array of function, which are executed in parallel.
+* end: Optional. Function. An optional callback to run once all the tasks have completed. 
+* err: Required. Error. An error object passed from the process callback.
+* results: Optional. Array. Values passed from the tasks.
+
+> Example
 
 ```js
 var nue = require('nue');
@@ -111,7 +165,21 @@ var myFlow = flow(
 myFlow();
 ```
 
-### parallelEach
+### parallelEach(Function begin(beginArg), Function process(processArg), Function end(err, results)) -> Function
+
+Return a function to process each value in parallel.
+
+> Arguments
+
+* begin: Required. Function. A callback to prepare values.
+* beginArg: Optional. Object. A value passed from the previous task.
+* process: Required. Function. A callback to process values.
+* processArg: Optional. Object. An each value passed from the begin callback.
+* end: Optional. Function. An optional callback to run once all the values have been processed. 
+* err: Required. Error. An error object passed from the process callback.
+* results: Optional. Array. Values passed from the process callback.
+
+> Example
 
 ```js
 var nue = require('nue');
@@ -122,7 +190,7 @@ var fs = require('fs');
 var myFlow = flow(
   parallelEach(
     function () {
-      this.begin('file1', 'file2');
+      this.fork('file1', 'file2');
     },
     function (name) {
       var self = this;
