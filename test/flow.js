@@ -5,7 +5,7 @@ var assert = require('assert');
 
 describe('flow', function() {
   it('should chain functions', function (done) {
-    start(flow(
+    flow(
       function () {
         this.next();
       },
@@ -18,10 +18,10 @@ describe('flow', function() {
       function () {
         done();
       }
-    ));
+    )();
   });
   it('should chain functions with specified batch size', function (done) {
-    start(flow(1)(
+    flow(1)(
       function () {
         this.next();
       },
@@ -34,20 +34,20 @@ describe('flow', function() {
       function () {
         done();
       }
-    ));
+    )();
   });
   it('should accept arguments on startup', function (done) {
-    start(1, true, 'hoge', flow(
+    flow(
       function (number, boolean, string) {
         assert.strictEqual(number, 1);
         assert.strictEqual(boolean, true);
         assert.strictEqual(string, 'hoge');
         done();
       }
-    ));
+    )(1, true, 'hoge');
   });
   it('should pass arguments between functions"', function (done) {
-    start(flow(
+    flow(
       function () {
         this.next(1, true, 'hoge');
       },
@@ -63,10 +63,10 @@ describe('flow', function() {
         assert.strictEqual(string, 'foo');
         done();
       }
-    ));
+    )();
   });
   it('should ignore duplicated next function calls"', function (done) {
-    start(flow(
+    flow(
       function () {
         this.next(this);
       },
@@ -74,10 +74,10 @@ describe('flow', function() {
         arg.next();
         done();
       }
-    ));
+    )();
   });
   it('should share data', function (done) {
-    start(flow(
+    flow(
       function () {
         this.data = 'a'; 
         this.next();
@@ -94,10 +94,10 @@ describe('flow', function() {
         assert.strictEqual(this.data, 'abc');
         done();
       }
-    ));
+    )();
   });
   it('should exit from chain with the end function', function (done) {
-    start(flow(
+    flow(
       function () {
         this.data = 'a';
         this.next();
@@ -114,7 +114,7 @@ describe('flow', function() {
         assert.strictEqual(this.data, 'ab');
         done();
       }
-    ));
+    )();
   });
 
   it('should emit "done" event', function (done) {

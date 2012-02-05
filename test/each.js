@@ -6,7 +6,7 @@ var assert = require('assert');
 
 describe('each', function() {
   it('should handle results in the end function', function (done) {
-    start([1, 2, 3], flow(
+    flow(
       each(
         function (values) {
           this.next(values);
@@ -22,7 +22,7 @@ describe('each', function() {
           done();
         }
       )
-    ));
+    )([1, 2, 3]);
   });
   it('should call the end function with the context for serialEach', function (done) {
     var context = {};
@@ -40,7 +40,7 @@ describe('each', function() {
     ).call(context, [1, 2, 3]);
   });
   it('should determine the first and the last', function (done) {
-    start([1, 2, 3], flow(
+    flow(
       each(
         function (values) {
           this.next(values);
@@ -63,10 +63,10 @@ describe('each', function() {
           done();
         }
       )
-    ));
+    )([1, 2, 3]);
   });
   it('should be called from flow', function (done) {
-    start([1, 2, 3], flow(
+    flow(
       function (values) {
         this.data = 100;
         this.next(values);
@@ -88,7 +88,7 @@ describe('each', function() {
         assert.strictEqual(this.data, 106);
         done();
       }
-    ));
+    )([1, 2, 3]);
   });
 
 });
