@@ -150,9 +150,6 @@ describe('flow', function() {
       assert.strictEqual(argument, 5);
       assert.strictEqual(this.data, 'abxycd');      
       done();
-    });
-
-    myFlow();
+    })();
   });
-
 });
