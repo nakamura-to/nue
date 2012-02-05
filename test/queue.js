@@ -1,9 +1,9 @@
-var serialQueue = require('../lib/nue').serialQueue;
+var queue = require('../lib/nue').queue;
 var assert = require('assert');
 
-describe('serialQueue', function() {
+describe('queue', function() {
   it('should chain queued tasks', function (done) {
-    var q = serialQueue(
+    var q = queue(
       function (i) {
         if (this.isFirst) {
           this.data = [];
@@ -22,7 +22,7 @@ describe('serialQueue', function() {
     q.complete();
   });
   it('should accept arguments from the previous task', function (done) {
-    var q = serialQueue(
+    var q = queue(
       function (i) {
         this.next(i * 2);
       },

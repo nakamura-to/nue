@@ -1,9 +1,9 @@
 var nue = require('../lib/nue');
 var start = nue.start;
-var serial = nue.serial;
+var flow = nue.flow;
 var fs = require('fs');
 
-start(serial(
+start(flow(
   function () {
     this.data = [];
     fs.readFile('LICENSE', this.next);

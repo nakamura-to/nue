@@ -1,11 +1,11 @@
 var nue = require('../lib/nue');
 var start = nue.start;
-var serial = nue.serial;
+var flow = nue.flow;
 var assert = require('assert');
 
-describe('serial', function() {
+describe('flow', function() {
   it('should chain functions', function (done) {
-    start(serial(
+    start(flow(
       function () {
         this.next();
       },
@@ -21,7 +21,7 @@ describe('serial', function() {
     ));
   });
   it('should chain functions with specified batch size', function (done) {
-    start(serial(1)(
+    start(flow(1)(
       function () {
         this.next();
       },
@@ -37,7 +37,7 @@ describe('serial', function() {
     ));
   });
   it('should accept arguments on startup', function (done) {
-    start(1, true, 'hoge', serial(
+    start(1, true, 'hoge', flow(
       function (number, boolean, string) {
         assert.strictEqual(number, 1);
         assert.strictEqual(boolean, true);
@@ -47,7 +47,7 @@ describe('serial', function() {
     ));
   });
   it('should pass arguments between functions"', function (done) {
-    start(serial(
+    start(flow(
       function () {
         this.next(1, true, 'hoge');
       },
@@ -66,7 +66,7 @@ describe('serial', function() {
     ));
   });
   it('should ignore duplicated next function calls"', function (done) {
-    start(serial(
+    start(flow(
       function () {
         this.next(this);
       },
@@ -77,7 +77,7 @@ describe('serial', function() {
     ));
   });
   it('should share data', function (done) {
-    start(serial(
+    start(flow(
       function () {
         this.data = 'a'; 
         this.next();
@@ -97,7 +97,7 @@ describe('serial', function() {
     ));
   });
   it('should exit from chain with the end function', function (done) {
-    start(serial(
+    start(flow(
       function () {
         this.data = 'a';
         this.next();
@@ -116,4 +116,44 @@ describe('serial', function() {
       }
     ));
   });
+
+  it('should emit "done" event', function (done) {
+    var myFlow = flow(
+      function () {
+        this.data = 'a';
+        this.next(1);
+      },
+      function (i) {
+        this.data += 'b';
+        this.next(i + 1);
+      },
+      flow(1)(
+        function (i) {
+          this.data += 'x';
+          this.next(i + 1);
+        },
+        function (i) {
+          this.data += 'y';
+          this.next(i + 1);
+        }
+      ),
+      function (i) {
+        this.data += 'c';
+        this.next(i + 1);
+      },
+      function (i) {
+        this.data += 'd';
+        this.next(i);
+      }     
+    );
+
+    myFlow.on('done', function (argument) {
+      assert.strictEqual(argument, 5);
+      assert.strictEqual(this.data, 'abxycd');      
+      done();
+    });
+
+    myFlow();
+  });
+
 });
