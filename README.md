@@ -18,14 +18,14 @@ var fs = require('fs');
 
 var myFlow = flow(
   function (file) {
-    fs.readFile(file, this.next);
+    fs.readFile(file, 'utf-8', this.next);
   },
   function (err, data) {
     console.log(data);
   }
 );
 
-myFlow(['file1']);
+myFlow('file1');
 ```
 
 ## API
