@@ -94,7 +94,7 @@ describe('parallelEach', function() {
             this.join();
           }
         },
-        function (err, results) {
+        function (err) {
           assert.strictEqual(err, 'ERROR');
           done();
         }

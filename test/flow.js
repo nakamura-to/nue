@@ -1,5 +1,4 @@
 var nue = require('../lib/nue');
-var start = nue.start;
 var flow = nue.flow;
 var assert = require('assert');
 
@@ -38,9 +37,9 @@ describe('flow', function() {
   });
   it('should accept arguments on startup', function (done) {
     flow(
-      function (number, boolean, string) {
+      function (number, bool, string) {
         assert.strictEqual(number, 1);
-        assert.strictEqual(boolean, true);
+        assert.strictEqual(bool, true);
         assert.strictEqual(string, 'hoge');
         done();
       }
@@ -51,15 +50,15 @@ describe('flow', function() {
       function () {
         this.next(1, true, 'hoge');
       },
-      function (number, boolean, string) {
+      function (number, bool, string) {
         assert.strictEqual(number, 1);
-        assert.strictEqual(boolean, true);
+        assert.strictEqual(bool, true);
         assert.strictEqual(string, 'hoge');
         this.next(2, false, 'foo');
       },
-      function (number, boolean, string) {
+      function (number, bool, string) {
         assert.strictEqual(number, 2);
-        assert.strictEqual(boolean, false);
+        assert.strictEqual(bool, false);
         assert.strictEqual(string, 'foo');
         done();
       }

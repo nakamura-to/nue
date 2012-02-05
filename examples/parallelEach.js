@@ -1,10 +1,9 @@
 var nue = require('../lib/nue');
-var start = nue.start;
 var flow = nue.flow;
 var parallelEach = nue.parallelEach;
 var fs = require('fs');
 
-start(flow(
+flow(
   parallelEach(
     function () {
       this.fork('LICENSE', 'README.md');
@@ -21,4 +20,4 @@ start(flow(
       console.log(results);
     }
   )
-));
+)();

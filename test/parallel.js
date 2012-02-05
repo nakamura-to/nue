@@ -37,16 +37,21 @@ describe('parallel', function() {
   });
   it('should handle err in the end callback', function (done) {
     flow(
-      parallel([
+      parallel(
         function () {
-          this.join(1);
+          this.fork();
         },
-        function () {
-          this.end('ERROR');
-        },
-        function () {
-          this.join(3);
-        }],
+        [ 
+          function () {
+            this.join(1);
+          },
+          function () {
+            this.end('ERROR');
+          },
+          function () {
+            this.join(3);
+          }
+        ],
         function (err, results) {
           assert.strictEqual(err, 'ERROR');
           assert.strictEqual(results, undefined);
@@ -85,24 +90,6 @@ describe('parallel', function() {
         }
       )
     )(1, 2, 3);
-  });
-  it('should work without begin callback', function (done) {
-    flow(
-      parallel([
-        function () {
-          this.join(1);
-        },
-        function () {
-          this.join(2);
-        },
-        function () {
-          this.join(3);
-        }],
-        function (err, results) {
-          done();
-        }
-      )
-    )();
   });
   it('should work without end callback', function () {
     flow(
@@ -169,7 +156,7 @@ describe('parallel', function() {
             this.join(3);
           }
         ],
-        function (err, results) {
+        function (err) {
           assert.strictEqual(err, 'ERROR');
           done();
         }

@@ -1,9 +1,8 @@
 var nue = require('../lib/nue');
-var start = nue.start;
 var flow = nue.flow;
 var fs = require('fs');
 
-start(flow(
+flow(
   function () {
     this.data = [];
     fs.readFile('LICENSE', this.next);
@@ -22,4 +21,4 @@ start(flow(
     if (err) throw err;
     console.log(this.data);
   }
-));
+)();

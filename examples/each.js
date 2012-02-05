@@ -1,10 +1,9 @@
 var nue = require('../lib/nue');
-var start = nue.start;
 var flow = nue.flow;
 var each = nue.each;
 var fs = require('fs');
 
-start(flow(
+flow(
   each(
     function () {
       this.next('LICENSE', 'README.md', 'package.json');
@@ -21,4 +20,4 @@ start(flow(
       console.log(results);
     }
   )
-));
+)();

@@ -1,5 +1,4 @@
 var nue = require('../lib/nue');
-var start = nue.start;
 var flow = nue.flow;
 var each = nue.each;
 var assert = require('assert');
@@ -79,13 +78,13 @@ describe('each', function() {
             this.next();
           }
         },
-        function (err, results) {
+        function (err) {
           assert.strictEqual('ERROR', err);
           assert.strictEqual(2, this.data);
           done();
         }
       ),
-      function (err) {
+      function () {
       }
     )([1, 2, 3]);
   });
