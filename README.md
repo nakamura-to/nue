@@ -103,6 +103,9 @@ Return a function to process each value in series.
 * data: Object. An object shared in control-flow.
 * next: Function. A function to execute the process callback with next value or the end callback.
 * end: Function. A function to execute the end callback.
+* isFirst: Boolean. Indicate whether the first process or not. 
+* isLast: Boolean. Indicate whether the last process or not.
+* index: Number. A process index.
 
 "this" context of the end callback is same with the previous task one.
 
