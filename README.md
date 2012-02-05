@@ -37,7 +37,15 @@ Return a function which represents the control-flow.
 > Arguments
 
 * tasks: Optional. Tasks which are executed in series.
- 
+
+> Context
+
+"this" context of an each task has following properties.
+
+* data: Object. An object shared among control-flow.
+* next: Function. A function to execute the next task.  
+* end: Function. A function to execute the last task.
+
 > Example
 
 ```js
@@ -79,9 +87,24 @@ Return a function to process each value in series.
 * beginArg: Optional. Object. A value passed from the previous task.
 * process: Required. Function. A callback to process values.
 * processArg: Optional. Object. An each value passed from the begin callback.
-* end: Optional. Function. An optional callback to run once all the values have been processed. 
+* end: Optional. Function. An optional callback to handle error and results. 
 * err: Required. Error. An error passed from the process callback.
 * results: Optional. Array. Values passed from the process callback.
+
+> Context
+
+"this" context of the begin callback has following properties.
+
+* data: Object. An object shared in control-flow.
+* next: Function. A function to execute the process callback in series. 
+
+"this" context of the process callback has following properties.
+
+* data: Object. An object shared in control-flow.
+* next: Function. A function to execute the process callback with next value or the end callback.
+* end: Function. A function to execute the end callback.
+
+"this" context of the end callback is same with the previous task one.
 
 > Example
 
@@ -122,9 +145,25 @@ Return a function to process tasks in parallel.
 * begin: Required. Function. A callback to prepare values.
 * beginArg: Optional. Object. A value passed from the previous task.
 * tasks: Required. Array. An array of function, which are executed in parallel.
-* end: Optional. Function. An optional callback to run once all the tasks have completed. 
+* end: Optional. Function. An optional callback to handle error and results. 
 * err: Required. Error. An error object passed from the process callback.
 * results: Optional. Array. Values passed from the tasks.
+
+> Context
+
+"this" context of the begin callback has following properties.
+
+* data: Object. An object shared in control-flow.
+* fork: Function. A function to execute the tasks in parallel.
+
+"this" context of the each task has following properties.
+
+* data: Object. An object shared in control-flow.
+* join: Function. A function to end the task and wait other tasks to complete.
+* end: Function. A function to execute the end callback.
+
+"this" context of the end callback is same with the previous task one.
+
 
 > Example
 
@@ -175,9 +214,24 @@ Return a function to process each value in parallel.
 * beginArg: Optional. Object. A value passed from the previous task.
 * process: Required. Function. A callback to process values.
 * processArg: Optional. Object. An each value passed from the begin callback.
-* end: Optional. Function. An optional callback to run once all the values have been processed. 
+* end: Optional. Function. An optional callback to handle error and results. 
 * err: Required. Error. An error object passed from the process callback.
 * results: Optional. Array. Values passed from the process callback.
+
+> Context
+
+"this" context of the begin callback has following properties.
+
+* data: Object. An object shared in control-flow.
+* fork: Function. A function to execute the process callback in parallel.
+
+"this" context of the process callback has following properties.
+
+* data: Object. An object shared in control-flow.
+* join: Function. A function to end the process callback and wait other process callbacks to complete.
+* end: Function. A function to execute the end callback.
+
+"this" context of the end callback is same with the previous task one.
 
 > Example
 
