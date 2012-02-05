@@ -4,7 +4,7 @@ var parallel = nue.parallel;
 var assert = require('assert');
 
 describe('parallel', function() {
-  it('should handle results in the end function', function (done) {
+  it('should handle results in the end callback', function (done) {
     flow(
       parallel(
         function () {
@@ -35,7 +35,7 @@ describe('parallel', function() {
       )
     )();
   });
-  it('should handle err in the end function', function (done) {
+  it('should handle err in the end callback', function (done) {
     flow(
       parallel([
         function () {
@@ -86,7 +86,7 @@ describe('parallel', function() {
       )
     )(1, 2, 3);
   });
-  it('should work without begin function', function (done) {
+  it('should work without begin callback', function (done) {
     flow(
       parallel([
         function () {
@@ -104,7 +104,7 @@ describe('parallel', function() {
       )
     )();
   });
-  it('should work without end function', function () {
+  it('should work without end callback', function () {
     flow(
       parallel(
         function () {
@@ -124,7 +124,7 @@ describe('parallel', function() {
       )
     )();
   });
-  it('should call the end function with the context for parallel', function (done) {
+  it('should call the end callback with the context for parallel', function (done) {
     var context = {};
     parallel(
       function () {
@@ -151,5 +151,29 @@ describe('parallel', function() {
         done();
       }
     ).call(context);
+  });
+  it('should exit from the parallel execution with the end function', function (done) {
+    flow(
+      parallel(
+        function () {
+          this.fork();
+        },
+        [
+          function () {
+            this.join(1);
+          },
+          function () {
+            this.end('ERROR');
+          },
+          function () {
+            this.join(3);
+          }
+        ],
+        function (err, results) {
+          assert.strictEqual(err, 'ERROR');
+          done();
+        }
+      )
+    )();
   });
 });

@@ -4,7 +4,7 @@ var parallelEach = nue.parallelEach;
 var assert = require('assert');
 
 describe('parallelEach', function() {
-  it('should handle results in the end function', function (done) {
+  it('should handle results in the end callback', function (done) {
     flow(
       parallelEach(
         function (values) {
@@ -44,7 +44,7 @@ describe('parallelEach', function() {
       )
     )([1, 2, 3]);
   });
-  it('should handle err in the end function', function (done) {
+  it('should handle err in the end callback', function (done) {
     flow(
       parallelEach(
         function (values) {
@@ -61,7 +61,7 @@ describe('parallelEach', function() {
       )
     )([1, 2, 3]);
   });
-  it('should call the end function with the context for parallelEach', function (done) {
+  it('should call the end callback with the context for parallelEach', function (done) {
     var context = {};
     parallelEach(
       function (values) {
@@ -80,6 +80,26 @@ describe('parallelEach', function() {
         done();
       }
     ).call(context, [1, 2, 3]);
+  });
+  it('should exit from the parallel loop with the end function', function (done) {
+    flow(
+      parallelEach(
+        function () {
+          this.fork(1, 2, 3);
+        },
+        function (i) {
+          if (i === 2) {
+            this.end('ERROR');
+          } else {
+            this.join();
+          }
+        },
+        function (err, results) {
+          assert.strictEqual(err, 'ERROR');
+          done();
+        }
+      )
+    )();
   });
 
 });

@@ -5,7 +5,7 @@ var each = nue.each;
 var assert = require('assert');
 
 describe('each', function() {
-  it('should handle results in the end function', function (done) {
+  it('should handle results in the end callback', function (done) {
     flow(
       each(
         function (values) {
@@ -24,7 +24,7 @@ describe('each', function() {
       )
     )([1, 2, 3]);
   });
-  it('should call the end function with the context for serialEach', function (done) {
+  it('should call the end callback with the context for each', function (done) {
     var context = {};
     each(
       function (values) {
@@ -65,28 +65,27 @@ describe('each', function() {
       )
     )([1, 2, 3]);
   });
-  it('should be called from flow', function (done) {
+  it('should exit from the loop with the end function', function (done) {
     flow(
-      function (values) {
-        this.data = 100;
-        this.next(values);
-      },
       each(
         function (values) {
           this.next(values);
         },
         function (i) {
-          this.data += i;
-          this.next();
+          this.data = i;
+          if (this.index === 1) {
+            this.end('ERROR');
+          } else {
+            this.next();
+          }
         },
         function (err, results) {
-          this.next(this.data);
+          assert.strictEqual('ERROR', err);
+          assert.strictEqual(2, this.data);
+          done();
         }
       ),
-      function (value) {
-        assert.strictEqual(value, 106);
-        assert.strictEqual(this.data, 106);
-        done();
+      function (err) {
       }
     )([1, 2, 3]);
   });
