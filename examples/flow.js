@@ -7,18 +7,16 @@ flow(
     this.data = [];
     fs.readFile('LICENSE', this.next);
   },
-  function (err, data) {
-    if (err) this.end(err);
+  function (data) {
     this.data.push(data.length);
     fs.readFile('README.md', this.next);
   },
-  function (err, data) {
-    if (err) this.end(err);
+  function (data) {
     this.data.push(data.length);
-    this.next();
+    this.next(null);
   },
-  function (err) {
-    if (err) throw err;
+  function () {
+    if (this.err) throw this.err;
     console.log(this.data);
   }
 )();

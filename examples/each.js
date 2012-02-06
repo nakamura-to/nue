@@ -4,20 +4,17 @@ var each = nue.each;
 var fs = require('fs');
 
 flow(
-  each(
-    function () {
-      this.next('LICENSE', 'README.md', 'package.json');
-    },
-    function (name) {
-      var self = this;
-      fs.readFile(name, function (err, data) {
-        if (err) throw self.end(err);
-        self.next(data.length);
-      });
-    },
-    function (err, results) {
-      if (err) throw err;
-      console.log(results);
-    }
-  )
+  function () {
+    this.next(null, ['LICENSE', 'README.md', 'package.json']);
+  },
+  each(function (name) {
+    fs.readFile(name, this.next);
+  }),
+  each(function (data) {
+    this.next(null, data.length);
+  }),
+  function (results) {
+    if (this.err) throw this.err;
+    console.log(results);
+  }
 )();

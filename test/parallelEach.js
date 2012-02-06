@@ -7,13 +7,13 @@ describe('parallelEach', function() {
   it('should handle results in the end callback', function (done) {
     flow(
       function (values) {
-        this.next(null, values);
+        this.next(values);
       },
-      parallelEach(function (_, value) {
-        this.join(null, value * 2);
+      parallelEach(function (value) {
+        this.next(value * 2);
       }),
-      function (err, results) {
-        assert.strictEqual(err, null);
+      function (results) {
+        assert.strictEqual(this.err, undefined);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 2);
         assert.strictEqual(results[1], 4);
@@ -25,13 +25,13 @@ describe('parallelEach', function() {
   it('should accept batch size', function (done) {
     flow(
       function (values) {
-        this.next(null, values);
+        this.next(values);
       },
-      parallelEach(1)(function (_, value) {
-        this.join(null, value * 2);
+      parallelEach(1)(function (value) {
+        this.next(value * 2);
       }),
-      function (err, results) {
-        assert.strictEqual(err, null);
+      function (results) {
+        assert.strictEqual(this.err, undefined);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 2);
         assert.strictEqual(results[1], 4);
@@ -43,13 +43,13 @@ describe('parallelEach', function() {
   it('should handle err in the end callback', function (done) {
     flow(
       function (values) {
-        this.next(null, values);
+        this.next(values);
       },
-      parallelEach(function (_, value) {
-        this.join('ERROR');
+      parallelEach(function () {
+        this.end('ERROR');
       }),
-      function (err, results) {
-        assert.strictEqual(err, 'ERROR');
+      function (results) {
+        assert.strictEqual(this.err, 'ERROR');
         assert.strictEqual(results, undefined);
         done();
       }
@@ -58,13 +58,13 @@ describe('parallelEach', function() {
   it('should exit from the parallel loop with the end function', function (done) {
     flow(
       function () {
-        this.next(null, [1, 2, 3]);
+        this.next([1, 2, 3]);
       },
-      parallelEach(function (_, i) {
+      parallelEach(function (i) {
         if (i === 2) {
           this.end('ERROR');
         } else {
-          this.join();
+          this.next();
         }
       }),
       function (err) {

@@ -7,23 +7,21 @@ describe('parallel', function() {
   it('should handle results in the end callback', function (done) {
     flow(
       parallel(
-        [
-          function () {
-            this.join(null, 1);
-          },
-          function () {
-            var self = this;
-            setTimeout(function () {
-              self.join(null, 2);
-            }, 10)
-          },
-          function () {
-            this.join(null, 3);
-          }
-        ]
+        function () {
+          this.next(1);
+        },
+        function () {
+          var self = this;
+          setTimeout(function () {
+            self.next(2);
+          }, 10)
+        },
+        function () {
+          this.next(3);
+        }
       ),
-      function (err, results) {
-        assert.strictEqual(err, null);
+      function (results) {
+        assert.strictEqual(this.err, undefined);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 1);
         assert.strictEqual(results[1], 2);
@@ -35,17 +33,15 @@ describe('parallel', function() {
   it('should handle err in the end callback', function (done) {
     flow(
       parallel(
-        [ 
-          function () {
-            this.join(null, 1);
-          },
-          function () {
-            this.end('ERROR');
-          },
-          function () {
-            this.join(null, 3);
-          }
-        ]
+        function () {
+          this.next(null, 1);
+        },
+        function () {
+          this.end('ERROR');
+        },
+        function () {
+          this.next(null, 3);
+        }
       ),
       function (err, results) {
         assert.strictEqual(err, 'ERROR');
@@ -57,23 +53,21 @@ describe('parallel', function() {
   it('should accept arguments', function (done) {
     flow(
       parallel(
-        [ 
-          function (a) {
-            this.join(null, a);
-          },
-          function (b) {
-            var self = this;
-            setTimeout(function () {
-              self.join(null, b);
-            }, 10);
-          },
-          function (c) {
-            this.join(null, c);
-          }
-        ]
+        function (a) {
+          this.next(a);
+        },
+        function (b) {
+          var self = this;
+          setTimeout(function () {
+            self.next(b);
+          }, 10);
+        },
+        function (c) {
+          this.next(c);
+        }
       ),
-      function (err, results) {
-        assert.strictEqual(err, null);
+      function (results) {
+        assert.strictEqual(this.err, undefined);
         assert.strictEqual(results.length, 3, results);
         assert.strictEqual(results[0], 1);
         assert.strictEqual(results[1], 2);
@@ -85,34 +79,30 @@ describe('parallel', function() {
   it('should work without end callback', function () {
     flow(
       parallel(
-        [
-          function () {
-            this.join(null, 1);
-          },
-          function () {
-            this.join(null, 2);
-          },
-          function () {
-            this.join(null, 3);
-          }
-        ]
+        function () {
+          this.next(null, 1);
+        },
+        function () {
+          this.next(null, 2);
+        },
+        function () {
+          this.next(null, 3);
+        }
       )
     )();
   });
   it('should exit from the parallel execution with the end function', function (done) {
     flow(
       parallel(
-        [
-          function () {
-            this.join(null, 1);
-          },
-          function () {
-            this.end('ERROR');
-          },
-          function () {
-            this.join(null, 3);
-          }
-        ]
+        function () {
+          this.next(null, 1);
+        },
+        function () {
+          this.end('ERROR');
+        },
+        function () {
+          this.next(null, 3);
+        }
       ),
       function (err) {
         assert.strictEqual(err, 'ERROR');

@@ -6,7 +6,7 @@ describe('parallelQueue', function() {
   it('should handle results in the callback', function (done) {
     var q = parallelQueue(
       function (i) {
-        this.join(i * 2);
+        this.next(i * 2);
       },
       function (err, results) {
         assert.strictEqual(err, null);

@@ -4,29 +4,27 @@ var parallel = nue.parallel;
 var fs = require('fs');
 
 flow(
+  function () {
+    this.next(null, 'LICENSE', 'README.md');
+  },
   parallel(
-    function () {
-      this.fork('LICENSE', 'README.md');
+    function (name) {
+      var self = this;
+      fs.readFile(name, function (err, data) {
+        if (err) this.end(err);
+        self.join(null, data.length);
+      });
     },
-    [
-      function (name) {
-        var self = this;
-        fs.readFile(name, function (err, data) {
-          if (err) this.end(err);
-          self.join(data.length);
-        });
-      },
-      function (path) {
-        var self = this;
-        fs.stat(path, function (err, stats) {
-          if (err) this.end(err);
-          self.join(stats.isFile());
-        });
-      }
-    ],
-    function (err, results) {
-      if (err) throw err;
-      console.log(results);
+    function (path) {
+      var self = this;
+      fs.stat(path, function (err, stats) {
+        if (err) this.end(err);
+        self.join(null, stats.isFile());
+      });
     }
-  )
+  ),
+  function (results) {
+    if (this.err) throw this.err;
+    console.log(results);
+  }
 )();
