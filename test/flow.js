@@ -35,6 +35,48 @@ describe('flow', function() {
       }
     )();
   });
+  it('should handle error', function (done) {
+    flow(
+      function () {
+        this.next();
+      },
+      function () {
+        this.next('ERROR');
+      },
+      function () {
+        assert.ok(false);
+      },
+      function (err) {
+        assert.strictEqual(err, 'ERROR');
+        done();
+      }
+    )();
+  });
+  it('should handle error in the nested flow', function (done) {
+    flow(
+      function () {
+        this.next();
+      },
+      flow(
+        function () {
+          this.next('ERROR');
+        },
+        function () {
+          assert.ok(false);
+        },
+        function (err) {
+          assert.strictEqual(err, 'ERROR');
+          this.next();
+        }
+      ),
+      function () {
+        this.next();
+      },
+      function () {
+        done();
+      }
+    )();
+  });
   it('should accept arguments on startup', function (done) {
     flow(
       function (number, bool, string) {
@@ -48,15 +90,16 @@ describe('flow', function() {
   it('should pass arguments between functions"', function (done) {
     flow(
       function () {
-        this.next(1, true, 'hoge');
+        this.next(null, 1, true, 'hoge');
       },
-      function (number, bool, string) {
+      function (_, number, bool, string) {
         assert.strictEqual(number, 1);
         assert.strictEqual(bool, true);
         assert.strictEqual(string, 'hoge');
-        this.next(2, false, 'foo');
+        this.next(null, 2, false, 'foo');
       },
-      function (number, bool, string) {
+      function (err, number, bool, string) {
+        assert.strictEqual(err, null);
         assert.strictEqual(number, 2);
         assert.strictEqual(bool, false);
         assert.strictEqual(string, 'foo');
@@ -67,10 +110,10 @@ describe('flow', function() {
   it('should ignore duplicated next function calls"', function (done) {
     flow(
       function () {
-        this.next(this);
+        this.next(null, this);
       },
-      function (arg) {
-        arg.next();
+      function (err, prevContext) {
+        prevContext.next();
         done();
       }
     )();
@@ -120,33 +163,34 @@ describe('flow', function() {
     var myFlow = flow(
       function () {
         this.data = 'a';
-        this.next(1);
+        this.next(null, 1);
       },
-      function (i) {
+      function (_, i) {
         this.data += 'b';
-        this.next(i + 1);
+        this.next(null, i + 1);
       },
       flow(1)(
-        function (i) {
+        function (_, i) {
           this.data += 'x';
-          this.next(i + 1);
+          this.next(null, i + 1);
         },
-        function (i) {
+        function (_, i) {
           this.data += 'y';
-          this.next(i + 1);
+          this.next(null, i + 1);
         }
       ),
-      function (i) {
+      function (_, i) {
         this.data += 'c';
-        this.next(i + 1);
+        this.next(null, i + 1);
       },
-      function (i) {
+      function (_, i) {
         this.data += 'd';
-        this.next(i);
-      }     
+        this.next(null, i);
+      }
     );
 
-    myFlow.on('done', function (argument) {
+    myFlow.on('done', function (err, argument) {
+      if (err) throw err;
       assert.strictEqual(argument, 5);
       assert.strictEqual(this.data, 'abxycd');      
       done();
