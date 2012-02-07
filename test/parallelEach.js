@@ -13,7 +13,7 @@ describe('parallelEach', function() {
         this.next(value * 2);
       }),
       function (results) {
-        assert.strictEqual(this.err, undefined);
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 2);
         assert.strictEqual(results[1], 4);
@@ -32,7 +32,7 @@ describe('parallelEach', function() {
         this.next(value * 2);
       }),
       function (results) {
-        assert.strictEqual(this.err, undefined);
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 2);
         assert.strictEqual(results[1], 4);

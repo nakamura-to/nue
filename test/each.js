@@ -16,7 +16,7 @@ describe('each', function() {
         this.next();
       }),
       function () {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         done();
       }
     )();
@@ -34,19 +34,19 @@ describe('each', function() {
         this.callback();
       }),
       function () {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         done();
       }
     )();
   });
 
-  it('should accept arguments on startup', function (done) {
+  it('should accept an array argument on startup', function (done) {
     flow(
       each(function (value) {
         this.next(value * 2);
       }),
       function (results) {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 2);
         assert.strictEqual(results[1], 4);
@@ -56,7 +56,7 @@ describe('each', function() {
     )([1, 2, 3]);
   });
 
-  it('should accept array argument from the previous function', function (done) {
+  it('should accept an array argument from the previous function', function (done) {
     flow(
       function () {
         this.next([1, 2, 3]);
@@ -65,7 +65,7 @@ describe('each', function() {
         this.next(value * 2);
       }),
       function (results) {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 2);
         assert.strictEqual(results[1], 4);
@@ -84,7 +84,7 @@ describe('each', function() {
         this.next(value * 2);
       }),
       function (results) {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 2);
         assert.strictEqual(results[1], 4);
@@ -107,7 +107,7 @@ describe('each', function() {
         this.next(result);
       }),
       function (results) {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 'first');
         assert.strictEqual(results[1], undefined);
@@ -117,7 +117,7 @@ describe('each', function() {
     )([1, 2, 3]);
   });
 
-  it('should exit from the loop with the end function', function (done) {
+  it('should exit with the "end"', function (done) {
     flow(
       each(function (i) {
         this.data = i;
@@ -137,7 +137,7 @@ describe('each', function() {
     )([1, 2, 3]);
   });
 
-  it('should throw Error for an invalid argument', function (done) {
+  it('should throw Error if no worker specified', function (done) {
     var exception;
     try {
       each();

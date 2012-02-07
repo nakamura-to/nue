@@ -15,7 +15,7 @@ describe('flow', function() {
         this.next();
       },
       function () {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         done();
       }
     )();
@@ -33,7 +33,7 @@ describe('flow', function() {
         this.callback();
       },
       function () {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         done();
       }
     )();
@@ -51,13 +51,38 @@ describe('flow', function() {
         this.next();
       },
       function () {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         done();
       }
     )();
   });
 
-  it('should jump with "end"', function (done) {
+  it('should exit without an error', function (done) {
+    flow(
+      function () {
+        this.data = 'a';
+        this.next();
+      },
+      function () {
+        this.data += 'b';
+        this.end(null, 'aaa', 123);
+      },
+      function () {
+        this.data += 'c';
+        this.next();
+      },
+      function (string, number) {
+        assert.ok(!this.err);
+        assert.strictEqual(this.data, 'ab');
+        assert.strictEqual(string, 'aaa');
+        assert.strictEqual(number, 123);
+        done();
+      }
+    )();
+  });
+
+
+  it('should exit with an error', function (done) {
     flow(
       function () {
         this.next();
@@ -77,7 +102,7 @@ describe('flow', function() {
     )();
   });
 
-  it('should jump inner flow', function (done) {
+  it('should exit from an inner flow with an error', function (done) {
     flow(
       function () {
         this.next();
@@ -91,6 +116,7 @@ describe('flow', function() {
         },
         function () {
           assert.strictEqual(this.err, 'ERROR');
+          this.err = null;
           this.next();
         }
       ),
@@ -103,9 +129,10 @@ describe('flow', function() {
     )();
   });
 
-  it('should accept arguments on startup', function (done) {
+  it('should accept multiple arguments on startup', function (done) {
     flow(
       function (number, bool, string) {
+        if (this.err) throw this.err;
         assert.strictEqual(number, 1);
         assert.strictEqual(bool, true);
         assert.strictEqual(string, 'hoge');
@@ -126,7 +153,7 @@ describe('flow', function() {
         this.next(2, false, 'foo');
       },
       function (number, bool, string) {
-        assert.strictEqual(this.err, undefined);
+        assert.ok(!this.err);
         assert.strictEqual(number, 2);
         assert.strictEqual(bool, false);
         assert.strictEqual(string, 'foo');
@@ -147,7 +174,7 @@ describe('flow', function() {
         this.callback(null, 2, false, 'foo');
       },
       function (number, bool, string) {
-        assert.strictEqual(this.err, undefined);
+        assert.ok(!this.err);
         assert.strictEqual(number, 2);
         assert.strictEqual(bool, false);
         assert.strictEqual(string, 'foo');
@@ -162,6 +189,7 @@ describe('flow', function() {
         this.next(this);
       },
       function (prevContext) {
+        assert.ok(!this.err);
         prevContext.next();
         done();
       }
@@ -183,28 +211,8 @@ describe('flow', function() {
         this.next();
       },
       function () {
+        assert.ok(!this.err);
         assert.strictEqual(this.data, 'abc');
-        done();
-      }
-    )();
-  });
-
-  it('should exit from chain with the end function', function (done) {
-    flow(
-      function () {
-        this.data = 'a';
-        this.next();
-      },
-      function () {
-        this.data += 'b';
-        this.end();
-      },
-      function () {
-        this.data += 'c';
-        this.next();
-      },
-      function () {
-        assert.strictEqual(this.data, 'ab');
         done();
       }
     )();
@@ -235,7 +243,7 @@ describe('flow', function() {
         this.next(i + 1);
       },
       function (i) {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         this.data += 'd';
         this.next(i);
       }
@@ -258,6 +266,7 @@ describe('flow', function() {
   it('should handle single task', function (done) {
     var myFlow = flow(
       function () {
+        assert.ok(!this.err);
         this.next();
       }
     );
@@ -265,4 +274,24 @@ describe('flow', function() {
       done();
     })();
   });
+
+  it('should notify an unhandled error', function (done) {
+    flow(
+      function () {
+        this.end(new Error('hoge'));
+      },
+      function () {
+        this.next();
+      },
+      function () {
+        assert.ok(this.err);
+        try {
+          this.next();
+        } catch (e) {
+          done();
+        }
+      }
+    )();
+  });
+
 });

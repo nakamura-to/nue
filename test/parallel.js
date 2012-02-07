@@ -16,7 +16,7 @@ describe('parallel', function() {
         this.next();
       }),
       function () {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         done();
       }
     )();
@@ -34,7 +34,7 @@ describe('parallel', function() {
         this.callback();
       }),
       function () {
-        if (this.err) throw this.err;
+        assert.ok(!this.err);
         done();
       }
     )();
@@ -57,7 +57,7 @@ describe('parallel', function() {
         }
       ),
       function (results) {
-        assert.strictEqual(this.err, undefined);
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 1);
         assert.strictEqual(results[1], 2);
@@ -86,7 +86,7 @@ describe('parallel', function() {
         ]
       ),
       function (results) {
-        assert.strictEqual(this.err, undefined);
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3);
         assert.strictEqual(results[0], 1);
         assert.strictEqual(results[1], 2);
@@ -96,14 +96,14 @@ describe('parallel', function() {
     )();
   });
 
-  it('should handle err in the end callback', function (done) {
+  it('should exit with an error', function (done) {
     flow(
       parallel(
         function () {
           this.next(1);
         },
         function () {
-          this.end('ERROR');
+          this.end('ERROR', ['aaa', 123]);
         },
         function () {
           this.next(3);
@@ -111,7 +111,32 @@ describe('parallel', function() {
       ),
       function (results) {
         assert.strictEqual(this.err, 'ERROR');
-        assert.strictEqual(results, undefined);
+        assert.strictEqual(results.length, 2);
+        assert.strictEqual(results[0], 'aaa');
+        assert.strictEqual(results[1], 123);
+        done();
+      }
+    )();
+  });
+
+  it('should exit without an error', function (done) {
+    flow(
+      parallel(
+        function () {
+          this.next(1);
+        },
+        function () {
+          this.end(null, ['aaa', 123]);
+        },
+        function () {
+          this.next(3);
+        }
+      ),
+      function (results) {
+        assert.ok(!this.err);
+        assert.strictEqual(results.length, 2);
+        assert.strictEqual(results[0], 'aaa');
+        assert.strictEqual(results[1], 123);
         done();
       }
     )();
@@ -134,7 +159,7 @@ describe('parallel', function() {
         }
       ),
       function (results) {
-        assert.strictEqual(this.err, undefined);
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3, results);
         assert.strictEqual(results[0], 1);
         assert.strictEqual(results[1], 2);
@@ -161,7 +186,7 @@ describe('parallel', function() {
         }
       ),
       function (results) {
-        assert.strictEqual(this.err, undefined);
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3, results);
         assert.strictEqual(results[0], 1);
         assert.strictEqual(results[1], 2);
@@ -191,7 +216,7 @@ describe('parallel', function() {
         }
       ),
       function (results) {
-        assert.strictEqual(this.err, undefined);
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3, results);
         assert.strictEqual(results[0], 1);
         assert.strictEqual(results[1], 2);
@@ -221,7 +246,7 @@ describe('parallel', function() {
         }
       ),
       function (results) {
-        assert.strictEqual(this.err, undefined);
+        assert.ok(!this.err);
         assert.strictEqual(results.length, 3, results);
         assert.strictEqual(results[0], 1);
         assert.strictEqual(results[1], 2);
