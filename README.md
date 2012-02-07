@@ -41,17 +41,16 @@ Return a function which represents the control-flow.
 
 > Context
 
-`this` context of the `each task` except the 'last task' has following properties.
+`this` context of the each task has following properties.
 
 * `data`: Object. An object shared among control-flow.
 * `next`: Function. A function to execute the next task.  
+* `callback`: Function. This is same with `next` except the first parameter is an error object. 
 * `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
 
-`this` context of the `last task` has following properties.
+In addition to the above ones, the context of the last task has a following property.
 
-* `err`: Object. An object represents an error which passed with the `end` function.
-* `data`: Object. An object shared among control-flow.
-* `next`: Function. A function to execute the next task.  
+* `err`: Object. An object represents an error which passed from the `end` function.
 
 > Example
 
@@ -77,7 +76,7 @@ var myFlow = flow(
     if (this.err) throw this.err;
     console.log(this.data);
   }
-));
+);
 
 myFlow();
 ```
@@ -97,6 +96,7 @@ Return a function to process each value in series.
 
 * `data`: Object. An object shared in control-flow.
 * `next`: Function. A function to process next value.
+* `callback`: Function. This is same with `next` except the first parameter is an error object. 
 * `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
 * `isFirst`: Boolean. Indicate whether the first process or not. 
 * `isLast`: Boolean. Indicate whether the last process or not.
@@ -144,6 +144,7 @@ Return a function to process tasks in parallel.
 
 * `data`: Object. An object shared in control-flow.
 * `next`: Function. A function to complete the task and wait other tasks to complete.
+* `callback`: Function. This is same with `next` except the first parameter is an error object. 
 * `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
 
 > Example
@@ -198,6 +199,7 @@ Return a function to process each value in parallel.
 
 * `data`: Object. An object shared in control-flow.
 * `next`: Function. A function to complete the value processing and wait other value processing to complete.
+* `callback`: Function. This is same with `next` except the first parameter is an error object. 
 * `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
 
 > Example
