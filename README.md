@@ -18,9 +18,10 @@ var fs = require('fs');
 
 var myFlow = flow(
   function (file) {
-    fs.readFile(file, 'utf-8', this.next);
+    fs.readFile(file, 'utf-8', this.callback);
   },
-  function (err, data) {
+  function (data) {
+    if (this.err) throw this.err;
     console.log(data);
   }
 );
@@ -40,11 +41,17 @@ Return a function which represents the control-flow.
 
 > Context
 
-`this` context of the `each task` has following properties.
+`this` context of the `each task` except the 'last task' has following properties.
 
 * `data`: Object. An object shared among control-flow.
 * `next`: Function. A function to execute the next task.  
-* `end`: Function. A function to execute the last task.
+* `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
+
+`this` context of the `last task` has following properties.
+
+* `err`: Object. An object represents an error which passed with the `end` function.
+* `data`: Object. An object shared among control-flow.
+* `next`: Function. A function to execute the next task.  
 
 > Example
 
@@ -56,20 +63,18 @@ var fs = require('fs');
 var myFlow = flow(
   function () {
     this.data = [];
-    fs.readFile('file1', this.next);
+    fs.readFile('file1', this.callback);
   },
-  function (err, data) {
-    if (err) throw this.end(err);
+  function (data) {
     this.data.push(data.length);
-    fs.readFile('file2', this.next);
+    fs.readFile('file2', this.callback);
   },
-  function (err, data) {
-    if (err) throw this.end(err);
+  function (data) {
     this.data.push(data.length);
     this.next();
   },
-  function (err) {
-    if (err) throw err;
+  function () {
+    if (this.err) throw this.err;
     console.log(this.data);
   }
 ));
@@ -77,37 +82,25 @@ var myFlow = flow(
 myFlow();
 ```
 
-### each(Function begin(beginArg), Function process(processArg), Function end(err, results)) -> Function
+### each(Function worker(arg)) -> Function
 
 Return a function to process each value in series.
 
 > Arguments
 
-* `begin`: Required. Function. A callback to prepare values.
-* `beginArg`: Optional. Object. A value passed from the previous task.
-* `process`: Required. Function. A callback to process values.
-* `processArg`: Optional. Object. An each value passed from the begin callback.
-* `end`: Optional. Function. An optional callback to handle error and results. 
-* `err`: Required. Error. An error passed from the process callback.
-* `results`: Optional. Array. Values passed from the process callback.
+* `worker`: Required. Function. A function to process an each value.
+* `arg`: Optional. Object. An each value passed from the returned function.
 
 > Context
 
-`this` context of the `begin callback` has following properties.
+`this` context of the `worker` has following properties.
 
 * `data`: Object. An object shared in control-flow.
-* `next`: Function. A function to execute the process callback in series. 
-
-`this` context of the `process callback` has following properties.
-
-* `data`: Object. An object shared in control-flow.
-* `next`: Function. A function to execute the process callback with next value or the end callback.
-* `end`: Function. A function to execute the end callback.
+* `next`: Function. A function to process next value.
+* `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
 * `isFirst`: Boolean. Indicate whether the first process or not. 
 * `isLast`: Boolean. Indicate whether the last process or not.
 * `index`: Number. A process index.
-
-`this` context of the `end callback` is same with the previous task one.
 
 > Example
 
@@ -118,55 +111,40 @@ var each = nue.each;
 var fs = require('fs');
 
 var myFlow = flow(
-  each(
-    function () {
-      this.next('file1', 'file2', 'file3');
-    },
-    function (name) {
-      var self = this;
-      fs.readFile(name, function (err, data) {
-        if (err) throw this.end(err);
-        self.next(data.length);
-      });
-    },
-    function (err, results) {
-      if (err) throw err;
-      console.log(results);
-    }
-  )
+  function () {
+    this.next('file1', 'file2', 'file3');
+  },
+  each(function (name) {
+    var self = this;
+    fs.readFile(name, function (err, data) {
+      if (err) throw this.end(err);
+      self.next(data.length);
+    });
+  }),
+  function (results) {
+    if (err) throw err;
+    console.log(results);
+  }
 );
 
 myFlow();
 ```
 
-### parallel(Function begin(beginArg), Array tasks, Function end(err, results)) -> Function
+### parallel([Function tasks...]) -> Function
 
 Return a function to process tasks in parallel.
 
 > Arguments
 
-* `begin`: Required. Function. A callback to prepare values.
-* `beginArg`: Optional. Object. A value passed from the previous task.
-* `tasks`: Required. Array. An array of function, which are executed in parallel.
-* `end`: Optional. Function. An optional callback to handle error and results. 
-* `err`: Required. Error. An error object passed from the process callback.
-* `results`: Optional. Array. Values passed from the tasks.
+* `tasks`: Optional. Tasks which are executed in parallel.
 
 > Context
-
-`this` context of the `begin callback` has following properties.
-
-* `data`: Object. An object shared in control-flow.
-* `fork`: Function. A function to execute the tasks in parallel.
 
 `this` context of the `each task` has following properties.
 
 * `data`: Object. An object shared in control-flow.
-* `join`: Function. A function to end the task and wait other tasks to complete.
-* `end`: Function. A function to execute the end callback.
-
-`this` context of the `end callback` is same with the previous task one.
-
+* `next`: Function. A function to complete the task and wait other tasks to complete.
+* `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
 
 > Example
 
@@ -177,64 +155,50 @@ var parallel = nue.parallel;
 var fs = require('fs');
 
 var myFlow = flow(
+  function () {
+    this.next('file1', 'file2');
+  },
   parallel(
-    function () {
-      this.fork('file1', 'file2');
+    function (name) {
+      var self = this;
+      fs.readFile(name, function (err, data) {
+        if (err) this.end(err);
+        self.join(data.length);
+      });
     },
-    [
-      function (name) {
-        var self = this;
-        fs.readFile(name, function (err, data) {
-          if (err) this.err(err);
-          self.join(data.length);
-        });
-      },
-      function (path) {
-        var self = this;
-        fs.stat(path, function (err, stats) {
-          if (err) this.err(err);
-          self.join(stats.isFile());
-        });
-      }
-    ],
-    function (err, results) {
-      if (err) throw err;
-      console.log(results);
+    function (path) {
+      var self = this;
+      fs.stat(path, function (err, stats) {
+        if (err) this.end(err);
+        self.join(stats.isFile());
+      });
     }
-  )
+  ),
+  function (results) {
+    if (this.err) throw this.err;
+    console.log(results);
+  }
 );
 
 myFlow();
 ```
 
-### parallelEach(Function begin(beginArg), Function process(processArg), Function end(err, results)) -> Function
+### parallelEach(Function worker(arg)) -> Function
 
 Return a function to process each value in parallel.
 
 > Arguments
 
-* `begin`: Required. Function. A callback to prepare values.
-* `beginArg`: Optional. Object. A value passed from the previous task.
-* `process`: Required. Function. A callback to process values.
-* `processArg`: Optional. Object. An each value passed from the begin callback.
-* `end`: Optional. Function. An optional callback to handle error and results. 
-* `err`: Required. Error. An error object passed from the process callback.
-* `results`: Optional. Array. Values passed from the process callback.
+* `worker`: Optional. Function. A function to process an each value.
+* `arg`: Optional. Object. An each value passed from the begin callback.
 
 > Context
 
-`this` context of the `begin callback` has following properties.
+`this` context of the `worker` has following properties.
 
 * `data`: Object. An object shared in control-flow.
-* `fork`: Function. A function to execute the process callback in parallel.
-
-`this` context of the `process callback` has following properties.
-
-* `data`: Object. An object shared in control-flow.
-* `join`: Function. A function to end the process callback and wait other process callbacks to complete.
-* `end`: Function. A function to execute the end callback.
-
-`this` context of the `end callback` is same with the previous task one.
+* `next`: Function. A function to complete the value processing and wait other value processing to complete.
+* `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
 
 > Example
 
@@ -245,22 +209,20 @@ var parallelEach = nue.parallelEach;
 var fs = require('fs');
 
 var myFlow = flow(
-  parallelEach(
-    function () {
-      this.fork('file1', 'file2');
-    },
-    function (name) {
-      var self = this;
-      fs.readFile(name, function (err, data) {
-        if (err) this.end(err);
-        self.join(data.length);
-      });
-    },
-    function (err, results) {
-      if (err) throw err;
-      console.log(results);
-    }
-  )
+  function () {
+    this.fork('file1', 'file2');
+  },
+  parallelEach(function (name) {
+    var self = this;
+    fs.readFile(name, function (err, data) {
+      if (err) this.end(err);
+      self.join(data.length);
+    });
+  }),
+  function (results) {
+    if (this.err) throw this.err;
+    console.log(results);
+  }
 );
 
 myFlow();
