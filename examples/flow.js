@@ -5,15 +5,15 @@ var fs = require('fs');
 flow(
   function () {
     this.data = [];
-    fs.readFile('LICENSE', this.next);
+    fs.readFile('LICENSE', this.callback);
   },
   function (data) {
     this.data.push(data.length);
-    fs.readFile('README.md', this.next);
+    fs.readFile('README.md', this.callback);
   },
   function (data) {
     this.data.push(data.length);
-    this.next(null);
+    this.next();
   },
   function () {
     if (this.err) throw this.err;

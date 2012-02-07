@@ -5,13 +5,13 @@ var fs = require('fs');
 
 flow(
   function () {
-    this.next(null, ['LICENSE', 'README.md']);
+    this.next('LICENSE', 'README.md');
   },
   parallelEach(function (name) {
     var self = this;
     fs.readFile(name, function (err, data) {
       if (err) this.end(err);
-      self.join(null, data.length);
+      self.next(data.length);
     });
   }),
   function (results) {

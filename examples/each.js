@@ -5,13 +5,13 @@ var fs = require('fs');
 
 flow(
   function () {
-    this.next(null, ['LICENSE', 'README.md', 'package.json']);
+    this.next('LICENSE', 'README.md', 'package.json');
   },
   each(function (name) {
-    fs.readFile(name, this.next);
+    fs.readFile(name, this.callback);
   }),
   each(function (data) {
-    this.next(null, data.length);
+    this.next(data.length);
   }),
   function (results) {
     if (this.err) throw this.err;

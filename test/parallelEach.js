@@ -22,6 +22,7 @@ describe('parallelEach', function() {
       }
     )([1, 2, 3]);
   });
+
   it('should accept batch size', function (done) {
     flow(
       function (values) {
@@ -40,6 +41,7 @@ describe('parallelEach', function() {
       }
     )([1, 2, 3]);
   });
+
   it('should handle err in the end callback', function (done) {
     flow(
       function (values) {
@@ -55,6 +57,7 @@ describe('parallelEach', function() {
       }
     )([1, 2, 3]);
   });
+
   it('should exit from the parallel loop with the end function', function (done) {
     flow(
       function () {
@@ -67,10 +70,22 @@ describe('parallelEach', function() {
           this.next();
         }
       }),
-      function (err) {
-        assert.strictEqual(err, 'ERROR');
+      function () {
+        assert.strictEqual(this.err, 'ERROR');
         done();
       }
     )();
   });
+
+  it('should throw Error for an invalid argument', function (done) {
+    var exception;
+    try {
+      parallelEach();
+    } catch (e) {
+      exception = e;
+    }
+    assert.ok(exception instanceof Error);
+    done();
+  });
+
 });
