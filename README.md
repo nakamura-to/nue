@@ -29,8 +29,33 @@ var myFlow = flow(
 myFlow('file1');
 ```
 
-## API
+## API Overview
 
+### Core
+
+* [flow](#flow)
+
+
+### Serial
+
+* [map](#map)
+* filter
+* every
+* some
+* queue
+
+### Parallel
+
+* [parallel](#parallel)
+* [parallelMap](#parallelMap)
+* parallelFilter
+* parallelEvery
+* parallelSome
+* parallelQueue
+
+## API Detail
+
+<a name="flow" />
 ### flow([Function tasks...]) -> Function
 
 Return a function which represents the control-flow.
@@ -75,13 +100,15 @@ var myFlow = flow(
   function () {
     if (this.err) throw this.err;
     console.log(this.data);
+    this.next();
   }
 );
 
 myFlow();
 ```
 
-### each(Function worker(arg)) -> Function
+<a name="map" />
+### map(Function worker(arg)) -> Function
 
 Return a function to process each value in series.
 
@@ -107,14 +134,14 @@ Return a function to process each value in series.
 ```js
 var nue = require('nue');
 var flow = nue.flow;
-var each = nue.each;
+var map = nue.map;
 var fs = require('fs');
 
 var myFlow = flow(
   function () {
     this.next('file1', 'file2', 'file3');
   },
-  each(function (name) {
+  map(function (name) {
     var self = this;
     fs.readFile(name, function (err, data) {
       if (err) throw this.end(err);
@@ -124,12 +151,14 @@ var myFlow = flow(
   function (results) {
     if (err) throw err;
     console.log(results);
+    this.next();
   }
 );
 
 myFlow();
 ```
 
+<a name="parallel" />
 ### parallel([Function tasks...]) -> Function
 
 Return a function to process tasks in parallel.
@@ -164,27 +193,29 @@ var myFlow = flow(
       var self = this;
       fs.readFile(name, function (err, data) {
         if (err) this.end(err);
-        self.join(data.length);
+        self.next(data.length);
       });
     },
     function (path) {
       var self = this;
       fs.stat(path, function (err, stats) {
         if (err) this.end(err);
-        self.join(stats.isFile());
+        self.next(stats.isFile());
       });
     }
   ),
   function (results) {
     if (this.err) throw this.err;
     console.log(results);
+    this.next();
   }
 );
 
 myFlow();
 ```
 
-### parallelEach(Function worker(arg)) -> Function
+<a name="parallelMap" />
+### parallelMap(Function worker(arg)) -> Function
 
 Return a function to process each value in parallel.
 
@@ -207,23 +238,24 @@ Return a function to process each value in parallel.
 ```js
 var nue = require('nue');
 var flow = nue.flow;
-var parallelEach = nue.parallelEach;
+var parallelMap = nue.parallelMap;
 var fs = require('fs');
 
 var myFlow = flow(
   function () {
-    this.fork('file1', 'file2');
+    this.next('file1', 'file2');
   },
-  parallelEach(function (name) {
+  parallelMap(function (name) {
     var self = this;
     fs.readFile(name, function (err, data) {
       if (err) this.end(err);
-      self.join(data.length);
+      self.next(data.length);
     });
   }),
   function (results) {
     if (this.err) throw this.err;
     console.log(results);
+    this.next();
   }
 );
 
