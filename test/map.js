@@ -1,18 +1,18 @@
 var nue = require('../lib/nue');
 var flow = nue.flow;
-var each = nue.each;
+var map = nue.map;
 var assert = require('assert');
 
-describe('each', function() {
+describe('map', function() {
   it('should chain functions with "next"', function (done) {
     flow(
       function () {
         this.next(1, 2, 3);
       },
-      each(function () {
+      map(function () {
         this.next();
       }),
-      each(function () {
+      map(function () {
         this.next();
       }),
       function () {
@@ -27,10 +27,10 @@ describe('each', function() {
       function () {
         this.callback(null, 1, 2, 3);
       },
-      each(function () {
+      map(function () {
         this.callback();
       }),
-      each(function () {
+      map(function () {
         this.callback();
       }),
       function () {
@@ -42,7 +42,7 @@ describe('each', function() {
 
   it('should accept an array argument on startup', function (done) {
     flow(
-      each(function (value) {
+      map(function (value) {
         this.next(value * 2);
       }),
       function (results) {
@@ -61,7 +61,7 @@ describe('each', function() {
       function () {
         this.next([1, 2, 3]);
       },
-      each(function (value) {
+      map(function (value) {
         this.next(value * 2);
       }),
       function (results) {
@@ -80,7 +80,7 @@ describe('each', function() {
       function () {
         this.next(1, 2, 3);
       },
-      each(function (value) {
+      map(function (value) {
         this.next(value * 2);
       }),
       function (results) {
@@ -96,7 +96,7 @@ describe('each', function() {
 
   it('should determine the first and the last', function (done) {
     flow(
-      each(function () {
+      map(function () {
         var result;
         if (this.isFirst) {
           result = 'first';
@@ -119,7 +119,7 @@ describe('each', function() {
 
   it('should exit with the "end"', function (done) {
     flow(
-      each(function (i) {
+      map(function (i) {
         this.data = i;
         if (this.index === 1) {
           this.end('ERROR', 'aaa', 123);
@@ -140,7 +140,7 @@ describe('each', function() {
   it('should throw Error if no worker specified', function (done) {
     var exception;
     try {
-      each();
+      map();
     } catch (e) {
       exception = e;
     }

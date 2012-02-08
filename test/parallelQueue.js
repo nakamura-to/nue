@@ -1,6 +1,6 @@
 var nue = require('../lib/nue');
 var flow = nue.flow;
-var each = nue.each;
+var map = nue.map;
 var parallel = nue.parallel;
 var parallelEach = nue.parallel;
 var assert = require('assert');
@@ -86,10 +86,10 @@ describe('parallelQueue', function() {
   });
 
     // EACH
-  describe('each', function () {
+  describe('map', function () {
     it('should chain with "next"', function (done) {
       flow(
-        each(function (len) {
+        map(function (len) {
           var q = this.parallelQueue(function (i) {
             this.next(i * 2);
           });
@@ -108,7 +108,7 @@ describe('parallelQueue', function() {
 
     it('should chain with "callback"', function (done) {
       flow(
-        each(function (len) {
+        map(function (len) {
           var q = this.parallelQueue(function (i) {
             this.callback(null, i * 2);
           });

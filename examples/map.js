@@ -1,16 +1,16 @@
 var nue = require('../lib/nue');
 var flow = nue.flow;
-var each = nue.each;
+var map = nue.map;
 var fs = require('fs');
 
 flow(
   function () {
     this.next('LICENSE', 'README.md', 'package.json');
   },
-  each(function (name) {
+  map(function (name) {
     fs.readFile(name, this.callback);
   }),
-  each(function (data) {
+  map(function (data) {
     this.next(data.length);
   }),
   function (results) {
