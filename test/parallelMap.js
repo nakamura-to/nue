@@ -1,15 +1,15 @@
 var nue = require('../lib/nue');
 var flow = nue.flow;
-var parallelEach = nue.parallelEach;
+var parallelMap = nue.parallelMap;
 var assert = require('assert');
 
-describe('parallelEach', function() {
+describe('parallelMap', function() {
   it('should handle results in the end callback', function (done) {
     flow(
       function (values) {
         this.next(values);
       },
-      parallelEach(function (value) {
+      parallelMap(function (value) {
         this.next(value * 2);
       }),
       function (results) {
@@ -28,7 +28,7 @@ describe('parallelEach', function() {
       function (values) {
         this.next(values);
       },
-      parallelEach(1)(function (value) {
+      parallelMap(1)(function (value) {
         this.next(value * 2);
       }),
       function (results) {
@@ -47,7 +47,7 @@ describe('parallelEach', function() {
       function (values) {
         this.next(values);
       },
-      parallelEach(function () {
+      parallelMap(function () {
         this.end('ERROR');
       }),
       function (results) {
@@ -63,7 +63,7 @@ describe('parallelEach', function() {
       function () {
         this.next([1, 2, 3]);
       },
-      parallelEach(function (i) {
+      parallelMap(function (i) {
         if (i === 2) {
           this.end('ERROR');
         } else {
@@ -80,7 +80,7 @@ describe('parallelEach', function() {
   it('should throw Error for an invalid argument', function (done) {
     var exception;
     try {
-      parallelEach();
+      parallelMap();
     } catch (e) {
       exception = e;
     }

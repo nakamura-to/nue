@@ -1,18 +1,17 @@
 var nue = require('../lib/nue');
 var flow = nue.flow;
-var parallelEach = nue.parallelEach;
+var parallelMap = nue.parallelMap;
 var fs = require('fs');
 
 flow(
   function () {
     this.next('LICENSE', 'README.md');
   },
-  parallelEach(function (name) {
-    var self = this;
-    fs.readFile(name, function (err, data) {
-      if (err) this.end(err);
-      self.next(data.length);
-    });
+  parallelMap(function (name) {
+    fs.readFile(name, this.callback);
+  }),
+  parallelMap(function (data) {
+    this.next(data.length);
   }),
   function (results) {
     if (this.err) throw this.err;
