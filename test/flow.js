@@ -60,11 +60,9 @@ describe('flow', function() {
   it('should exit without an error', function (done) {
     flow(
       function () {
-        this.data = 'a';
         this.next();
       },
       function () {
-        this.data += 'b';
         this.end(null, 'aaa', 123);
       },
       function () {
@@ -73,7 +71,6 @@ describe('flow', function() {
       },
       function (string, number) {
         assert.ok(!this.err);
-        assert.strictEqual(this.data, 'ab');
         assert.strictEqual(string, 'aaa');
         assert.strictEqual(number, 123);
         done();
@@ -190,28 +187,6 @@ describe('flow', function() {
       function (prevContext) {
         assert.ok(!this.err);
         prevContext.next();
-        done();
-      }
-    )();
-  });
-
-  it('should share data', function (done) {
-    flow(
-      function () {
-        this.data = 'a'; 
-        this.next();
-      },
-      function () {
-        this.data += 'b';
-        this.next();
-      },
-      function () {
-        this.data += 'c';
-        this.next();
-      },
-      function () {
-        assert.ok(!this.err);
-        assert.strictEqual(this.data, 'abc');
         done();
       }
     )();

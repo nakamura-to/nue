@@ -120,18 +120,16 @@ describe('map', function() {
   it('should exit with the "end"', function (done) {
     flow(
       map(function (i) {
-        this.data = i;
         if (this.index === 1) {
           this.end('ERROR', 'aaa', 123);
         } else {
-          this.next();
+          this.next(i);
         }
       }),
       function (string, number) {
         assert.strictEqual('ERROR', this.err);
         assert.strictEqual(string, 'aaa');
         assert.strictEqual(number, 123);
-        assert.strictEqual(2, this.data);
         done();
       }
     )([1, 2, 3]);

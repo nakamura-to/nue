@@ -4,19 +4,19 @@ var fs = require('fs');
 
 flow(
   function () {
-    this.data = [];
-    fs.readFile('LICENSE', this.async());
+    var results = [];
+    fs.readFile('LICENSE', this.async(results));
   },
-  function (data) {
-    this.data.push(data.length);
-    fs.readFile('README.md', this.async());
+  function (results, data) {
+    results.push(data.length);
+    fs.readFile('README.md', this.async(results));
   },
-  function (data) {
-    this.data.push(data.length);
-    this.next();
+  function (results, data) {
+    results.push(data.length);
+    this.next(results);
   },
-  function () {
+  function (results) {
     if (this.err) throw this.err;
-    console.log(this.data);
+    console.log(results);
   }
 )();
