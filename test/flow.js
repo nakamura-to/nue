@@ -21,16 +21,16 @@ describe('flow', function() {
     )();
   });
 
-  it('should chain functions with "callback"', function (done) {
+  it('should chain functions with "async"', function (done) {
     flow(
       function () {
-        this.callback();
+        this.async()();
       },
       function () {
-        this.callback();
+        this.async()();
       },
       function () {
-        this.callback();
+        this.async()();
       },
       function () {
         assert.ok(!this.err);
@@ -80,7 +80,6 @@ describe('flow', function() {
       }
     )();
   });
-
 
   it('should exit with an error', function (done) {
     flow(
@@ -162,16 +161,16 @@ describe('flow', function() {
     )();
   });
 
-  it('should pass arguments with "callback" between functions"', function (done) {
+  it('should pass arguments with "async" between functions"', function (done) {
     flow(
       function () {
-        this.callback(null, 1, true, 'hoge');
+        this.async(1, true, 'hoge')();
       },
       function (number, bool, string) {
         assert.strictEqual(number, 1);
         assert.strictEqual(bool, true);
         assert.strictEqual(string, 'hoge');
-        this.callback(null, 2, false, 'foo');
+        this.async(2, false, 'foo')();
       },
       function (number, bool, string) {
         assert.ok(!this.err);

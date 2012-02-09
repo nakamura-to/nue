@@ -8,7 +8,7 @@ flow(
     this.next('LICENSE', 'README.md', 'package.json');
   },
   map(function (name) {
-    fs.readFile(name, this.callback);
+    fs.readFile(name, this.async());
   }),
   map(function (data) {
     this.next(data.length);

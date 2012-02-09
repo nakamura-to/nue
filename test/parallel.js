@@ -25,15 +25,15 @@ describe('parallel', function() {
   it('should chain functions with "next"', function (done) {
     flow(
       function () {
-        this.callback(null, 1, 2, 3);
+        this.next(1, 2, 3);
       },
       parallel(function () {
-        this.callback();
+        this.next();
       }),
       parallel(function () {
-        this.callback();
+        this.next();
       }),
-      function () {
+      function (results) {
         assert.ok(!this.err);
         done();
       }
@@ -256,7 +256,7 @@ describe('parallel', function() {
     )();
   });
 
-  it('should work without end callback', function () {
+  it('should work without "end"', function () {
     flow(
       parallel(
         function () {

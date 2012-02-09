@@ -27,11 +27,11 @@ describe('queue', function() {
       )();
     });
 
-    it('should chain with "callback"', function (done) {
+    it('should chain with "async"', function (done) {
       flow(
         function () {
           var q = this.queue(function (i) {
-            this.callback(null, i * 2);
+            this.async(i * 2)();
           });
           for (var i = 0; i < 10; i++) {
             q.push(i);
@@ -65,11 +65,11 @@ describe('queue', function() {
       )();
     });
 
-    it('should exit with "callback"', function (done) {
+    it('should exit with "async"', function (done) {
       flow(
         function () {
           var q = this.queue(function (i) {
-            this.callback('ERROR');
+            this.async()('ERROR');
           });
           for (var i = 0; i < 10; i++) {
             q.push(i);
@@ -106,11 +106,11 @@ describe('queue', function() {
       )(1, 2, 3);
     });
 
-    it('should chain with "callback"', function (done) {
+    it('should chain with "async"', function (done) {
       flow(
         map(function (len) {
           var q = this.queue(function (i) {
-            this.callback(null, i * 2);
+            this.async(i * 2)();
           });
           for (var i = 0; i < len; i++) {
             q.push(i);
@@ -134,7 +134,7 @@ describe('queue', function() {
         parallel(
           function (len) {
             var q = this.queue(function (i) {
-              this.callback(null, i * 2);
+              this.next(i * 2);
             });
             for (var i = 0; i < len; i++) {
               q.push(i);
@@ -143,7 +143,7 @@ describe('queue', function() {
           },
           function (len) {
             var q = this.queue(function (i) {
-              this.callback(null, i * 2);
+              this.next(i * 2);
             });
             for (var i = 0; i < len; i++) {
               q.push(i);
@@ -159,12 +159,12 @@ describe('queue', function() {
       )(2, 3);
     });
 
-    it('should chain with "callback"', function (done) {
+    it('should chain with "async"', function (done) {
       flow(
         parallel(
           function (len) {
             var q = this.queue(function (i) {
-              this.callback(null, i * 2);
+              this.async(i * 2)();
             });
             for (var i = 0; i < len; i++) {
               q.push(i);
@@ -173,7 +173,7 @@ describe('queue', function() {
           },
           function (len) {
             var q = this.queue(function (i) {
-              this.callback(null, i * 2);
+              this.async(i * 2)();
             });
             for (var i = 0; i < len; i++) {
               q.push(i);
@@ -211,11 +211,11 @@ describe('queue', function() {
       )(1, 2, 3);
     });
 
-    it('should chain with "callback"', function (done) {
+    it('should chain with "async"', function (done) {
       flow(
         parallelMap(function (len) {
           var q = this.queue(function (i) {
-            this.callback(null, i * 2);
+            this.async(i * 2)();
           });
           for (var i = 0; i < len; i++) {
             q.push(i);

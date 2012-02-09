@@ -8,7 +8,7 @@ flow(
     this.next('LICENSE', 'README.md');
   },
   parallelMap(function (name) {
-    fs.readFile(name, this.callback);
+    fs.readFile(name, this.async());
   }),
   parallelMap(function (data) {
     this.next(data.length);

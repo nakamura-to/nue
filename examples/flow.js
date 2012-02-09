@@ -5,11 +5,11 @@ var fs = require('fs');
 flow(
   function () {
     this.data = [];
-    fs.readFile('LICENSE', this.callback);
+    fs.readFile('LICENSE', this.async());
   },
   function (data) {
     this.data.push(data.length);
-    fs.readFile('README.md', this.callback);
+    fs.readFile('README.md', this.async());
   },
   function (data) {
     this.data.push(data.length);

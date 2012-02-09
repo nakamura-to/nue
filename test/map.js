@@ -25,13 +25,13 @@ describe('map', function() {
   it('should chain functions with "callback"', function (done) {
     flow(
       function () {
-        this.callback(null, 1, 2, 3);
+        this.async(1, 2, 3)();
       },
       map(function () {
-        this.callback();
+        this.async()();
       }),
       map(function () {
-        this.callback();
+        this.async()();
       }),
       function () {
         assert.ok(!this.err);
