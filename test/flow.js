@@ -220,37 +220,30 @@ describe('flow', function() {
   it('should emit "done" event', function (done) {
     var myFlow = flow(
       function () {
-        this.data = 'a';
         this.next(1);
       },
       function (i) {
-        this.data += 'b';
         this.next(i + 1);
       },
       flow(1)(
         function (i) {
-          this.data += 'x';
           this.next(i + 1);
         },
         function (i) {
-          this.data += 'y';
           this.next(i + 1);
         }
       ),
       function (i) {
-        this.data += 'c';
         this.next(i + 1);
       },
       function (i) {
         assert.ok(!this.err);
-        this.data += 'd';
         this.next(i);
       }
     );
 
     myFlow.on('done', function (argument) {
       assert.strictEqual(argument, 5);
-      assert.strictEqual(this.data, 'abxycd');      
       done();
     })();
   });

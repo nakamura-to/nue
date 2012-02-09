@@ -88,4 +88,25 @@ describe('parallelMap', function() {
     done();
   });
 
+  it('should accept result from inner flow', function (done) {
+    var myFlow = flow(
+      function (i) {
+        this.next(i + 1);
+      },
+      function (i) {
+        this.next(i + 1);
+      }
+    );
+    flow(
+      parallelMap(
+        myFlow
+      ),
+      function (results) {
+        assert.deepEqual(results, [3]);
+        this.next();
+      }
+    ).on('done', function () {
+        done();
+      })(1);
+  });
 });
