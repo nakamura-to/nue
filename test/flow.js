@@ -216,18 +216,24 @@ describe('flow', function() {
         this.next(i);
       }
     );
-
-    myFlow.on('done', function (argument) {
-      assert.strictEqual(argument, 5);
-      done();
-    })();
+    
+    flow(
+      myFlow,
+      function (argument) {
+        assert.strictEqual(argument, 5);
+        done();
+      }
+    )();
   });
 
   it('should handle empty tasks', function (done) {
     var myFlow = flow();
-    myFlow.on('done', function() {
-      done();
-    })();
+    flow(
+      myFlow,
+      function () {
+        done();
+      }
+    )();
   });
 
   it('should handle single task', function (done) {
@@ -237,9 +243,12 @@ describe('flow', function() {
         this.next();
       }
     );
-    myFlow.on('done', function() {
-      done();
-    })();
+    flow(
+      myFlow,
+      function () {
+        done();
+      }
+    )();
   });
 
   it('should notify an unhandled error', function (done) {

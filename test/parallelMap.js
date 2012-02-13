@@ -103,10 +103,8 @@ describe('parallelMap', function() {
       ),
       function (results) {
         assert.deepEqual(results, [3]);
-        this.next();
-      }
-    ).on('done', function () {
         done();
-      })(1);
+      }
+    )(1);
   });
 });

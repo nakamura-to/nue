@@ -296,18 +296,24 @@ describe('parallel', function() {
     var myFlow = flow(
       parallel()
     );
-    myFlow.on('done', function() {
-      done();
-    })();
+    flow(
+      myFlow,
+      function () {
+        done();
+      }
+    )();
   });
 
   it('should handle empty array tasks', function (done) {
     var myFlow = flow(
       parallel([])
     );
-    myFlow.on('done', function() {
-      done();
-    })();
+    flow(
+      myFlow,
+      function () {
+        done();
+      }
+    )();
   });
 
   it('should handle single task', function (done) {
@@ -316,8 +322,11 @@ describe('parallel', function() {
         this.next();
       })
     );
-    myFlow.on('done', function() {
-      done();
-    })();
+    flow(
+      myFlow,
+      function () {
+        done();
+      }
+    )();
   });
 });
