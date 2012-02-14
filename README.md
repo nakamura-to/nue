@@ -18,7 +18,7 @@ var fs = require('fs');
 
 var myFlow = flow(
   function (file) {
-    fs.readFile(file, 'utf-8', this.callback);
+    fs.readFile(file, 'utf-8', this.async());
   },
   function (data) {
     if (this.err) throw this.err;
@@ -39,6 +39,7 @@ myFlow('file1');
 ### Serial
 
 * [map](#map)
+* forEach
 * filter
 * every
 * some
@@ -48,6 +49,7 @@ myFlow('file1');
 
 * [parallel](#parallel)
 * [parallelMap](#parallelMap)
+* parallelForEach
 * parallelFilter
 * parallelEvery
 * parallelSome
@@ -68,10 +70,9 @@ Return a function which represents the control-flow.
 
 `this` context of the each task has following properties.
 
-* `data`: Object. An object shared among control-flow.
-* `next`: Function. A function to execute the next task.  
-* `callback`: Function. This is same with `next` except the first parameter is an error object. 
-* `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
+* `next`: Function. A function to execute a next task.  
+* `async`: Function. A function to accept parameters for a next task and return a callback, which executes a next task. 
+* `end`: Function. A function to execute a last task to end a control-flow. The first parameter is an error object.
 
 In addition to the above ones, the context of the last task has a following property.
 
@@ -86,20 +87,20 @@ var fs = require('fs');
 
 var myFlow = flow(
   function () {
-    this.data = [];
-    fs.readFile('file1', this.callback);
+    var results = [];
+    fs.readFile('file1', this.async(results));
   },
-  function (data) {
-    this.data.push(data.length);
-    fs.readFile('file2', this.callback);
+  function (results, data) {
+    results.push(data.length);
+    fs.readFile('file2', this.async(results));
   },
-  function (data) {
-    this.data.push(data.length);
-    this.next();
+  function (results, data) {
+    results.push(data.length);
+    this.next(results);
   },
-  function () {
+  function (results) {
     if (this.err) throw this.err;
-    console.log(this.data);
+    console.log(results);
     this.next();
   }
 );
@@ -114,20 +115,19 @@ Return a function to process each value in series.
 
 > Arguments
 
-* `worker`: Required. Function. A function to process an each value.
-* `arg`: Optional. Object. An each value passed from the returned function.
+* `worker`: Required. Function. A function to process each value.
+* `arg`: Optional. Object. Each value passed from a previous task.
 
 > Context
 
 `this` context of the `worker` has following properties.
 
-* `data`: Object. An object shared in control-flow.
 * `next`: Function. A function to process next value.
-* `callback`: Function. This is same with `next` except the first parameter is an error object. 
-* `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
-* `isFirst`: Boolean. Indicate whether the first process or not. 
-* `isLast`: Boolean. Indicate whether the last process or not.
-* `index`: Number. A process index.
+* `async`: Function. A function to accept parameters for a next task and return a callback, which process next value. 
+* `end`: Function. A function to execute a last task to end a control-flow. The first parameter is an error object.
+* `isFirst`: Boolean. Indicate whether the worker is handling the first value or not. 
+* `isLast`: Boolean. Indicate whether the worker is handling the last value or not.
+* `index`: Number. An index of value.
 
 > Example
 
@@ -161,7 +161,7 @@ myFlow();
 <a name="parallel" />
 ### parallel([Function tasks...]) -> Function
 
-Return a function to process tasks in parallel.
+Return a function to execute tasks in parallel.
 
 > Arguments
 
@@ -169,12 +169,11 @@ Return a function to process tasks in parallel.
 
 > Context
 
-`this` context of the `each task` has following properties.
+`this` context of `each task` has following properties.
 
-* `data`: Object. An object shared in control-flow.
-* `next`: Function. A function to complete the task and wait other tasks to complete.
-* `callback`: Function. This is same with `next` except the first parameter is an error object. 
-* `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
+* `next`: Function. A function to complete a task and wait other tasks to complete.
+* `async`: Function. A function to accept parameters for a next task and return a callback, which complete a task and wait other tasks to complete. 
+* `end`: Function. A function to execute a last task to end a control-flow. The first parameter is an error object.
 
 > Example
 
@@ -221,17 +220,16 @@ Return a function to process each value in parallel.
 
 > Arguments
 
-* `worker`: Optional. Function. A function to process an each value.
-* `arg`: Optional. Object. An each value passed from the begin callback.
+* `worker`: Optional. Function. A function to process each value.
+* `arg`: Optional. Object. Each value passed from a previous task.
 
 > Context
 
 `this` context of the `worker` has following properties.
 
-* `data`: Object. An object shared in control-flow.
-* `next`: Function. A function to complete the value processing and wait other value processing to complete.
-* `callback`: Function. This is same with `next` except the first parameter is an error object. 
-* `end`: Function. A function to execute the last task to end the control-flow. The first parameter is an error object.
+* `next`: Function. A function to complete a processing and wait other processing to complete.
+* `async`: Function. A function to accept parameters for a next task and return a callback, which complete a processing and wait other processing to complete. 
+* `end`: Function. A function to execute a last task to end a control-flow. The first parameter is an error object.
 
 > Example
 
