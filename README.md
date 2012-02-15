@@ -169,7 +169,7 @@ Return a function to execute tasks in parallel.
 
 > Context
 
-`this` context of `each task` has following properties.
+`this` context of each task has following properties.
 
 * `next`: Function. A function to complete a task and wait other tasks to complete.
 * `async`: Function. A function to accept parameters for a next task and return a callback, which complete a task and wait other tasks to complete. 
