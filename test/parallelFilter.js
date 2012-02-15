@@ -3,7 +3,7 @@ var flow = nue.flow;
 var parallelFilter = nue.parallelFilter;
 var assert = require('assert');
 
-describe('filter', function() {
+describe('parallelFilter', function() {
   it('should chain with "next"', function (done) {
     flow(
       function () {
