@@ -126,6 +126,9 @@ describe('map', function() {
           this.next(i);
         }
       }),
+      function () {
+        assert.ok(false);
+      },
       function (string, number) {
         assert.strictEqual('ERROR', this.err);
         assert.strictEqual(string, 'aaa');

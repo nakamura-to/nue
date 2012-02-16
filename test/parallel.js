@@ -109,6 +109,9 @@ describe('parallel', function() {
           this.next(3);
         }
       ),
+      function () {
+        assert.ok(false);
+      },
       function (results) {
         assert.strictEqual(this.err, 'ERROR');
         assert.strictEqual(results.length, 2);

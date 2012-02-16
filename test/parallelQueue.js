@@ -57,6 +57,9 @@ describe('parallelQueue', function() {
           }
           q.complete();
         },
+        function () {
+          assert.ok(false);
+        },
         function (results) {
           assert.strictEqual(this.err, 'ERROR');
           assert.ok(!results);
@@ -75,6 +78,9 @@ describe('parallelQueue', function() {
             q.push(i);
           }
           q.complete();
+        },
+        function () {
+          assert.ok(false);
         },
         function (results) {
           assert.strictEqual(this.err, 'ERROR');
