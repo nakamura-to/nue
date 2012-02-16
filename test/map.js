@@ -145,4 +145,21 @@ describe('map', function() {
     assert.ok(exception instanceof Error);
     done();
   });
+
+  it('should provide flow local data', function (done) {
+    flow(
+      function () {
+        this.data.array = [];
+        this.next(1, 2, 3);
+      },
+      map(function (i) {
+        this.data.array.push(i * 2);
+        this.next();
+      }),
+      function () {
+        assert.deepEqual(this.data.array, [2, 4, 6]);
+        done();
+      }
+    )();
+  });
 });

@@ -270,4 +270,42 @@ describe('flow', function() {
     )();
   });
 
+  it('should provide flow local data', function (done) {
+    flow(
+      function () {
+        this.data.hoge = 'aaa';
+        this.next();
+      },
+      function () {
+        this.next();
+      },
+      function () {
+        assert.strictEqual(this.data.hoge, 'aaa');
+        done();
+      }
+    )();
+  });
+
+  it('should provide flow local data in sub-flow', function (done) {
+    flow(
+      function () {
+        this.data.hoge = 'aaa';
+        this.next();
+      },
+      flow(
+        function () {
+          this.data.hoge = 'bbb';
+          this.next();
+        },
+        function () {
+          assert.strictEqual(this.data.hoge, 'bbb');
+          this.next();
+        }
+      ),
+      function () {
+        assert.strictEqual(this.data.hoge, 'aaa');
+        done();
+      }
+    )();
+  });
 });

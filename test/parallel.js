@@ -329,4 +329,31 @@ describe('parallel', function() {
       }
     )();
   });
+
+  it('should provide flow local data', function (done) {
+    flow(
+      function () {
+        this.data.array = [];
+        this.next(1, 2, 3);
+      },
+      parallel(
+        function (i) {
+          this.data.array[this.index] = i * 2;
+          this.next();
+        },
+        function (i) {
+          this.data.array[this.index] = i * 3;
+          this.next();
+        },
+        function (i) {
+          this.data.array[this.index] = i * 4;
+          this.next();
+        }
+      ),
+      function () {
+        assert.deepEqual(this.data.array, [2, 6, 12]);
+        done();
+      }
+    )();
+  });
 });

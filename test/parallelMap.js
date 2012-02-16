@@ -107,4 +107,21 @@ describe('parallelMap', function() {
       }
     )(1);
   });
+
+  it('should provide flow local data', function (done) {
+    flow(
+      function () {
+        this.data.array = [];
+        this.next(1, 2, 3);
+      },
+      parallelMap(function (i) {
+        this.data.array[this.index] = i * 2;
+        this.next();
+      }),
+      function () {
+        assert.deepEqual(this.data.array, [2, 4, 6]);
+        done();
+      }
+    )();
+  });
 });
