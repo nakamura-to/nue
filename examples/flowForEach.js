@@ -18,5 +18,6 @@ flow(
   },
   function () {
     console.log('all done');
+    this.next();
   }
 )();

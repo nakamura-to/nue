@@ -13,6 +13,7 @@ flow(
   },
   function () {
     console.log('ok... ' + new Date());
+    this.next();
   }
 )();
 

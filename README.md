@@ -26,6 +26,7 @@ var myFlow = flow(
   function (data) {
     console.log(data);
     console.log('done');
+    this.next();
   }
 );
 
@@ -77,6 +78,7 @@ var myFlow = flow(
   function (data) {
     console.log(data);
     console.log(this.data.file1 ' and ' + this.data.file2 ' are concatenated.');
+    this.next();
   }
 );
 
@@ -107,6 +109,7 @@ var myFlow = flow(
       console.log(data);
     }
     console.log('done');
+    this.next();
   }
 );
 
