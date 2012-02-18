@@ -226,6 +226,7 @@ describe('flow', function() {
       function (prevContext) {
         assert.ok(!this.err);
         prevContext.next();
+        prevContext.end();
         done();
       }
     )();
