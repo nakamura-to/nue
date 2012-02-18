@@ -1,22 +1,17 @@
-var nue = require('../lib/nue');
-var flow = nue.flow;
+var flow = require('../lib/nue').flow;
 var fs = require('fs');
 
 flow(
   function () {
-    var results = [];
-    fs.readFile('LICENSE', this.async(results));
+    fs.readFile('LICENSE', this.async());
+    fs.readFile('README.md', this.async());
   },
-  function (results, data) {
-    results.push(data.length);
-    fs.readFile('README.md', this.async(results));
-  },
-  function (results, data) {
-    results.push(data.length);
-    this.next(results);
-  },
-  function (results) {
-    if (this.err) throw this.err;
-    console.log(results);
+  function (data1, data2) {
+    console.log(data1.length);
+    console.log(data2.length);
+    this.next();
+  }, 
+  function () {
+    console.log('all done');
   }
 )();
