@@ -129,6 +129,7 @@ describe('flow', function() {
       },
       function (string, number) {
         assert.strictEqual(this.err, 'ERROR');
+        this.err = null;
         assert.strictEqual(string, 'aaa');
         assert.strictEqual(number, 123);
         done();

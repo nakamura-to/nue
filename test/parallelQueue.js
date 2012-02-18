@@ -45,7 +45,7 @@ describe('parallelQueue', function() {
   it('should exit with "end" in "flow"', function (done) {
     flow(
       function () {
-        var q = this.parallelQueue(function (i) {
+        var q = this.parallelQueue(function () {
           this.end('ERROR');
         });
         for (var i = 0; i < 10; i++) {
@@ -58,6 +58,7 @@ describe('parallelQueue', function() {
       },
       function (results) {
         assert.strictEqual(this.err, 'ERROR');
+        this.err = null;
         assert.ok(!results);
         done();
       }
@@ -67,7 +68,7 @@ describe('parallelQueue', function() {
   it('should exit with "async"', function (done) {
     flow(
       function () {
-        var q = this.parallelQueue(function (i) {
+        var q = this.parallelQueue(function () {
           var f = this.async();
           process.nextTick(function () {
             f('ERROR');
@@ -83,6 +84,7 @@ describe('parallelQueue', function() {
       },
       function (results) {
         assert.strictEqual(this.err, 'ERROR');
+        this.err = null;
         assert.ok(!results);
         done();
       }
