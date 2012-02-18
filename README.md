@@ -50,9 +50,9 @@ Return a function which represents the control-flow.
 * `next`: Function. A function to execute a next task.  
 * `async`: Function. A function to accept parameters for a next task and return a callback. 
 * `end`: Function. A function to execute a last task to end a control-flow. The first parameter is an error object.
-* 'queue`: Function. A function to create a serial queue object.
-* 'parallelQueue`: Function. A function to create a parallel queue object.
-* 'data': Object : A object to share arbitrary data among functions in a control-flow.
+* `queue`: Function. A function to create a serial queue object.
+* `parallelQueue`: Function. A function to create a parallel queue object.
+* `data`: Object : A object to share arbitrary data among functions in a control-flow.
 
 In addition to the above ones, the context of the last task has a following property.
 
@@ -66,8 +66,8 @@ var fs = require('fs');
 
 var myFlow = flow(
   function (file1, file2) {
-    this.data.file1Name = file1;
-    this.data.file2Name = file2;
+    this.data.file1 = file1;
+    this.data.file2 = file2;
     fs.readFile(file1, 'utf-8', this.async());
     fs.readFile(file2, 'utf-8', this.async());
   },
@@ -103,8 +103,9 @@ var myFlow = flow(
       ...
       // indicate error handling completion
       this.err = null;
+    } else {
+      console.log(data);
     }
-    console.log(data);
     console.log('done');
   }
 );
