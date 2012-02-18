@@ -349,4 +349,22 @@ describe('flow', function() {
       }
     )();
   });
+
+  it('should handle an error thrown from a step', function (done) {
+    flow(
+      function () {
+        throw new Error('hoge');
+      },
+      function () {
+        this.next();
+      },
+      function () {
+        assert.ok(this.err);
+        assert.strictEqual('hoge', this.err.message);
+        this.err = null;
+        done();
+      }
+    )();
+  });
+
 });
