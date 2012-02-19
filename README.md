@@ -127,8 +127,7 @@ var myFlow = flow(
       fs.readFile(file, 'utf8', this.async());
     }.bind(this));
   },
-  function () {
-    var files = arguments[0];
+  function (files) {
     var data = Array.prototype.slice.call(arguments, 1).join('');
     console.log(files.join(' and ') + ' have been red.');
     this.next(data);
