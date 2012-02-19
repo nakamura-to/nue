@@ -122,21 +122,14 @@ var fs = require('fs');
 
 var myFlow = flow(
   function (files) {
+    process.nextTick(this.async(files));
     files.forEach(function (file) {
-      fs.readFile(file, 'utf8', this.async(file));
+      fs.readFile(file, 'utf8', this.async());
     }.bind(this));
   },
   function () {
-    var args = Array.prototype.slice.call(arguments);
-    var files = [];
-    var data = '';
-    args.forEach(function (arg, i) {
-      if (i % 2 === 0) {
-        files.push(arg);
-      } else {
-        data += arg;
-      }
-    });
+    var files = arguments[0];
+    var data = Array.prototype.slice.call(arguments, 1).join('');
     console.log(files.join(' and ') + ' have been red.');
     this.next(data);
   },
