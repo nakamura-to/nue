@@ -76,25 +76,6 @@ describe('flow', function() {
     )();
   });
 
-  it('should chain functions with specified batch size', function (done) {
-    flow(1)(
-      function () {
-        this.next();
-      },
-      function () {
-        this.next();
-      },
-      function () {
-        this.next();
-      },
-      function () {
-        assert.ok(!this.err);
-        assert.strictEqual(this.batchSize, 1);
-        done();
-      }
-    )();
-  });
-
   it('should exit with no error', function (done) {
     flow(
       function () {
@@ -241,7 +222,7 @@ describe('flow', function() {
       function (i) {
         this.next(i + 1);
       },
-      flow(1)(
+      flow(
         function (i) {
           this.next(i + 1);
         },
