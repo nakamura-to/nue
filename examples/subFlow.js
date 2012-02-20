@@ -1,5 +1,4 @@
 var flow = require('../lib/nue').flow;
-var fs = require('fs');
 
 flow(
   function () {
@@ -9,18 +8,15 @@ flow(
   flow(
     function () {
       console.log('b');
-      throw new Error('hoge');
+      this.next();
     },
     function () {
       console.log('c');
       this.next();
     },
     function () {
-      if (this.err) {
-        this.err = null;
-      }
       console.log('d');
-      this.next();
+      throw new Error('hoge');
     }
   ),
   function () {
@@ -28,8 +24,11 @@ flow(
     this.next();
   },
   function () {
-    if (this.err) throw this.err;
-    console.log('f');
+    if (this.err) {
+      console.log('f');
+      this.err = null;
+    }
+    console.log('g');
     this.next();
   }
 )();

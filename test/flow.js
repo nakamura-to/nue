@@ -348,4 +348,80 @@ describe('flow', function() {
     )();
   });
 
+  it('should handle an error thrown from a function of a nested flow', function (done) {
+    flow(
+      function () {
+        this.next()
+      },
+      flow(
+        function () {
+          this.next();
+        },
+        function () {
+          throw new Error('hoge');
+        },
+        function () {
+          this.next();
+        }
+      ),
+      function () {
+        assert.ok(this.err);
+        assert.strictEqual('hoge', this.err.message);
+        this.err = null;
+        done();
+      }
+    )();
+  });
+
+  it('should handle an error thrown from a LSAT function of a nested flow', function (done) {
+    flow(
+      function () {
+        this.next()
+      },
+      flow(
+        function () {
+          this.next();
+        },
+        function () {
+          this.next();
+        },
+        function () {
+          throw new Error('hoge');
+        }
+      ),
+      function () {
+        assert.ok(this.err);
+        assert.strictEqual('hoge', this.err.message);
+        this.err = null;
+        done();
+      }
+    )();
+  });
+
+  it('should handle an error in a nested flow', function (done) {
+    flow(
+      function () {
+        this.next()
+      },
+      flow(
+        function () {
+          this.next();
+        },
+        function () {
+          throw new Error('hoge');
+        },
+        function () {
+          if (this.err) {
+            this.err = null;
+          }
+          this.next();
+        }
+      ),
+      function () {
+        assert.ok(!this.err);
+        done();
+      }
+    )();
+  });
+  
 });
