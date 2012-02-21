@@ -53,6 +53,7 @@ Return a function which represents the control-flow.
 * `async`: Function. A function to accept parameters for a next function and return a callback. 
 * `end`: Function. A function to execute a last function to end a control-flow. The first parameter is an error object.
 * `data`: Object : A object to share arbitrary data between functions in a control-flow.
+* `args`: Array : An array equivalent to `arguments` for a function.
 
 In addition to the above ones, the context of the last function has a following property.
 
@@ -130,7 +131,7 @@ var myFlow = flow(
     }.bind(this));
   },
   function (files) {
-    var data = Array.prototype.slice.call(arguments, 1).join('');
+    var data = this.args.slice(1).join('');
     console.log(files.join(' and ') + ' have been read.');
     this.next(data);
   },

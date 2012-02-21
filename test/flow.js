@@ -423,5 +423,26 @@ describe('flow', function() {
       }
     )();
   });
-  
+
+  it('should provide context args', function (done) {
+    flow(
+      function () {
+        this.next(1, 'aaa', true);
+      },
+      function (a, b, c) {
+        assert.strictEqual(this.args.length, 3);
+        assert.strictEqual(this.args[0], 1);
+        assert.strictEqual(this.args[1], 'aaa');
+        assert.strictEqual(this.args[2], true);
+        this.next(a, b, c);
+      },
+      function () {
+        assert.strictEqual(this.args.length, 3);
+        assert.strictEqual(this.args[0], 1);
+        assert.strictEqual(this.args[1], 'aaa');
+        assert.strictEqual(this.args[2], true);
+        done();
+      }
+    )();
+  });
 });

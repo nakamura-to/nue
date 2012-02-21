@@ -9,7 +9,7 @@ var myFlow = flow(
     }.bind(this));
   },
   function (files) {
-    var data = Array.prototype.slice.call(arguments, 1).join('');
+    var data = this.args.slice(1).join('');
     console.log(files.join(' and ') + ' have been read.');
     this.next(data);
   },
