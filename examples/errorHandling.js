@@ -10,11 +10,17 @@ var myFlow = flow(
     this.next(data1 + data2);
   },
   function (data) {
-    if (this.err) throw this.err;
-    console.log(data);
+    if (this.err) {
+      // handle error
+      console.log(this.err);
+      // indicate error handling completion
+      this.err = null;
+    } else {
+      console.log(data);
+    }
     console.log('done');
     this.next();
   }
 );
 
-myFlow('file1', 'file2');
+myFlow('file1', 'non-existent-file');

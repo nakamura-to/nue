@@ -3,6 +3,8 @@ var fs = require('fs');
 
 var myFlow = flow(
   function (file1, file2) {
+    this.data.file1 = file1;
+    this.data.file2 = file2;
     fs.readFile(file1, 'utf8', this.async());
     fs.readFile(file2, 'utf8', this.async());
   },
@@ -12,7 +14,7 @@ var myFlow = flow(
   function (data) {
     if (this.err) throw this.err;
     console.log(data);
-    console.log('done');
+    console.log(this.data.file1 + ' and ' + this.data.file2 + ' are concatenated.');
     this.next();
   }
 );

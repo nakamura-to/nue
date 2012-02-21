@@ -1,4 +1,4 @@
-var flow = require('../lib/nue').flow;
+var flow = require('../index').flow;
 
 flow(
   function () {
@@ -29,6 +29,7 @@ flow(
       this.err = null;
     }
     console.log('g');
+    console.log('done');
     this.next();
   }
 )();

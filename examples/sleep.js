@@ -1,4 +1,4 @@
-var flow = require('../lib/nue').flow;
+var flow = require('../index').flow;
 
 function sleep(flow, ms) {
   setTimeout(function () {

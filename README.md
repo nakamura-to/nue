@@ -52,7 +52,7 @@ Return a function which represents the control-flow.
 * `next`: Function. A function to execute a next function immediately.  
 * `async`: Function. A function to accept parameters for a next function and return a callback. 
 * `end`: Function. A function to execute a last function to end a control-flow. The first parameter is an error object.
-* `data`: Object : A object to share arbitrary data among functions in a control-flow.
+* `data`: Object : A object to share arbitrary data between functions in a control-flow.
 
 In addition to the above ones, the context of the last function has a following property.
 
@@ -80,6 +80,7 @@ var mainFlow = flow(
   function (data) {
     if (this.err) throw this.err;
     console.log(data);
+    console.log('done');
   }
 );
 
@@ -100,13 +101,14 @@ var myFlow = flow(
     fs.readFile(file2, 'utf8', this.async(file2));
   },
   function (file1, data1, file2, data2) {
-    console.log(file1 + ' and ' + file2 + ' have been red.');
+    console.log(file1 + ' and ' + file2 + ' have been read.');
     this.next(data1 + data2);
   },
   function (data) {
     if (this.err) throw this.err;
     console.log(data);
-    this.next(data);
+    console.log('done');
+    this.next();
   }
 );
 
@@ -129,20 +131,21 @@ var myFlow = flow(
   },
   function (files) {
     var data = Array.prototype.slice.call(arguments, 1).join('');
-    console.log(files.join(' and ') + ' have been red.');
+    console.log(files.join(' and ') + ' have been read.');
     this.next(data);
   },
   function (data) {
     if (this.err) throw this.err;
     console.log(data);
-    this.next(data);
+    console.log('done');
+    this.next();
   }
 );
 
 myFlow(['file1', 'file2']);
 ```
 
-## Data Sharing Among Functions
+## Data Sharing Between Functions
 
 Each function in a flow can share data through `this.data`.
 `this.data` is shared in a same flow.
@@ -165,7 +168,7 @@ var myFlow = flow(
   function (data) {
     if (this.err) throw this.err;
     console.log(data);
-    console.log(this.data.file1 ' and ' + this.data.file2 ' are concatenated.');
+    console.log(this.data.file1 + ' and ' + this.data.file2 + ' are concatenated.');
     this.next();
   }
 );
@@ -193,7 +196,7 @@ var myFlow = flow(
   function (data) {
     if (this.err) {
       // handle error
-      ...
+      console.log(this.err);
       // indicate error handling completion
       this.err = null;
     } else {
@@ -204,5 +207,5 @@ var myFlow = flow(
   }
 );
 
-myFlow('file1', 'file2');
+myFlow('file1', 'non-existent-file');
 ```
