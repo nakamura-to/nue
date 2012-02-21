@@ -445,4 +445,32 @@ describe('flow', function() {
       }
     )();
   });
+
+  it('should chain functions in an array with "next"', function (done) {
+    flow([
+      function () {
+        this.data.a = true;
+        this.data.acc = 'a';
+        this.next();
+      },
+      function () {
+        this.data.b = true;
+        this.data.acc += 'b';
+        this.next();
+      },
+      function () {
+        this.data.c = true;
+        this.data.acc += 'c';
+        this.next();
+      },
+      function () {
+        assert.ok(!this.err);
+        assert.ok(this.data.a);
+        assert.ok(this.data.b);
+        assert.ok(this.data.c);
+        assert.strictEqual(this.data.acc, 'abc');
+        done();
+      }
+    ])();
+  });
 });
