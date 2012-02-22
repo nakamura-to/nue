@@ -7,11 +7,11 @@ function sleep(flow, ms) {
 }
 
 flow(
-  function () {
+  function start() {
     console.log('wait... ' + new Date());
     sleep(this, 1000);
   },
-  function () {
+  function end() {
     console.log('ok... ' + new Date());
     this.next();
   }

@@ -1,29 +1,29 @@
 var flow = require('../index').flow;
 
 flow(
-  function () {
+  function step1() {
     console.log('a');
     this.next();
   },
   flow(
-    function () {
+    function subStep1() {
       console.log('b');
       this.next();
     },
-    function () {
+    function subStep2() {
       console.log('c');
       this.next();
     },
-    function () {
+    function subStep3() {
       console.log('d');
       throw new Error('hoge');
     }
   ),
-  function () {
+  function step2() {
     console.log('e');
     this.next();
   },
-  function () {
+  function step3() {
     if (this.err) {
       console.log('f');
       this.err = null;
