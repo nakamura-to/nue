@@ -12,7 +12,7 @@ var myFlow = flow(
   function (data) {
     if (this.err) {
       // handle error
-      console.log(this.err);
+      console.log(this.err.message);
       // indicate error handling completion
       this.err = null;
     } else {

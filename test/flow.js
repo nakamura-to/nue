@@ -1,4 +1,5 @@
 var flow = require('../lib/nue').flow;
+var fs = require('fs');
 var assert = require('assert');
 
 describe('flow', function() {
@@ -103,7 +104,7 @@ describe('flow', function() {
         this.next();
       },
       function () {
-       throw new Error('ERROR');
+        throw new Error('ERROR');
       },
       function () {
         assert.ok(false);
@@ -469,5 +470,50 @@ describe('flow', function() {
         done();
       }
     ])();
+  });
+
+  it('should exit with an async error', function (done) {
+    flow(
+      function step1() {
+        this.next();
+      },
+      function step2() {
+        fs.readFile('non-existent-file', 'utf8', this.async())
+      },
+      function step3() {
+        assert.ok(false);
+      },
+      function step4() {
+        assert.strictEqual(this.err.name, 'AsyncError');
+        assert.strictEqual(this.err.stepName, 'step2');
+        assert.strictEqual(this.err.stepIndex, 1);
+        assert.strictEqual(this.err.asyncIndex, 0);
+        assert.ok(this.err.cause);
+        done();
+      }
+    )();
+  });
+
+  it('should exit from a last step with an async error', function (done) {
+    var myFlow = flow(
+      function step1() {
+        this.next();
+      },
+      function step2() {
+        fs.readFile('non-existent-file', 'utf8', this.async());
+      }
+    );
+
+    flow(
+      myFlow,
+      function () {
+        console.log('aaa');
+        assert.strictEqual(this.err.name, 'AsyncError');
+        assert.strictEqual(this.err.stepName, 'step2');
+        assert.strictEqual(this.err.stepIndex, 1);
+        assert.strictEqual(this.err.asyncIndex, 0);
+        done();
+      }
+    )();
   });
 });
