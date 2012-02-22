@@ -47,15 +47,15 @@ Return a function which represents the control-flow.
 
 `this` context of each step in a flow has following properties.
 
-* `next`: Function. A function to execute a next function immediately.  
-* `async`: Function. A function to accept parameters for a next function and return a callback. 
-* `end`: Function. A function to execute a last function to end a control-flow.
-* `data`: Object : A object to share arbitrary data between functions in a control-flow.
-* `args`: Array : An array equivalent to `arguments` for a function.
+* `next`: Function. A function to execute a next step immediately.  
+* `async`: Function. A function to accept parameters for a next step and return a callback. 
+* `end`: Function. A function to execute a last step to end a control-flow.
+* `data`: Object : A object to share arbitrary data between steps in a control-flow.
+* `args`: Array : An array equivalent to `arguments` for a step.
 * `flowName`: String : flow name.
 * `stepName`: String : step name.
 
-In addition to the above ones, the context of the last function has a following property.
+In addition to above ones, the context of a last step has a following property.
 
 * `err`: Object. An object represents an error which is thrown explicitly or passed to an async callback as first argument.
 
@@ -155,7 +155,7 @@ myFlow(['file1', 'file2']);
 
 ## Data Sharing Between Functions
 
-Each function in a flow can share data through `this.data`.
+Each step in a flow can share data through `this.data`.
 `this.data` is shared in a same flow.
 A nesting flow and any nested flows can't share `this.data`.
 
@@ -186,7 +186,7 @@ myFlow('file1', 'file2');
 
 ## Error Handling
 
-In a last function in a flow, `this.err` represents an error which is thrown explicitly or passed to an async callback as first argument. 
+In a last step in a flow, `this.err` represents an error which is thrown explicitly or passed to an async callback as first argument. 
 To indicate error handling completion, you must assign `null` to `this.err`.
 
 ```js
