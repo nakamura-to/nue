@@ -6,6 +6,7 @@ describe('flow', function() {
   it('should chain functions with "next"', function (done) {
     flow(
       function () {
+        assert.strictEqual(this.flowName, '');
         this.data.a = true;
         this.data.acc = 'a'; 
         this.next();
@@ -474,7 +475,7 @@ describe('flow', function() {
   });
 
   it('should exit with an async error', function (done) {
-    flow(
+    flow('myFlow')(
       function step1() {
         this.next();
       },
@@ -486,6 +487,7 @@ describe('flow', function() {
       },
       function step4() {
         assert.strictEqual(this.err.name, 'NueAsyncError');
+        assert.strictEqual(this.err.flowName, 'myFlow');
         assert.strictEqual(this.err.stepName, 'step2');
         assert.strictEqual(this.err.stepIndex, 1);
         assert.strictEqual(this.err.asyncIndex, 0);
@@ -533,4 +535,20 @@ describe('flow', function() {
       }
     )();
   });
+
+  it('should accept name', function (done) {
+    flow('myFlow')(
+      function step1() {
+        assert.strictEqual(this.flowName, 'myFlow');
+        assert.strictEqual(this.stepName, 'step1');
+        this.next();
+      },
+      function step2() {
+        assert.strictEqual(this.flowName, 'myFlow');
+        assert.strictEqual(this.stepName, 'step2');
+        done();
+      }
+    )();
+  });
+
 });

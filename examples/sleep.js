@@ -6,7 +6,7 @@ function sleep(flow, ms) {
   }, ms);
 }
 
-flow(
+flow('myFlow')(
   function start() {
     console.log('wait... ' + new Date());
     sleep(this, 1000);

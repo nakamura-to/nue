@@ -1,7 +1,7 @@
 var flow = require('../index').flow;
 var fs = require('fs');
 
-var myFlow = flow(
+var myFlow = flow('myFlow')(
   function readFiles(files) {
     process.nextTick(this.async(files));
     files.forEach(function (file) {

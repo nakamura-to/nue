@@ -1,7 +1,7 @@
 var flow = require('../index').flow;
 var fs = require('fs');
 
-var myFlow = flow(
+var myFlow = flow('myFlow')(
   function readFiles(file1, file2) {
     fs.readFile(file1, 'utf8', this.async(file1));
     fs.readFile(file2, 'utf8', this.async(file2));
