@@ -2,7 +2,7 @@ var flow = require('../index').flow;
 
 flow('mainFlow')(
   function step1() {
-    console.log('a');
+    console.log(this.stepName);
     this.next();
   },
   flow('subFlow')(
