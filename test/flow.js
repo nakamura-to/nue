@@ -284,7 +284,7 @@ describe('flow', function() {
         try {
           this.next();
         } catch (e) {
-          assert.strictEqual(e.name, 'UnhandledError');
+          assert.strictEqual(e.name, 'NueUnhandledError');
           done();
         }
       }
@@ -485,7 +485,7 @@ describe('flow', function() {
         assert.ok(false);
       },
       function step4() {
-        assert.strictEqual(this.err.name, 'AsyncError');
+        assert.strictEqual(this.err.name, 'NueAsyncError');
         assert.strictEqual(this.err.stepName, 'step2');
         assert.strictEqual(this.err.stepIndex, 1);
         assert.strictEqual(this.err.asyncIndex, 0);
@@ -508,7 +508,7 @@ describe('flow', function() {
     flow(
       myFlow,
       function () {
-        assert.strictEqual(this.err.name, 'AsyncError');
+        assert.strictEqual(this.err.name, 'NueAsyncError');
         assert.strictEqual(this.err.stepName, 'step2');
         assert.strictEqual(this.err.stepIndex, 1);
         assert.strictEqual(this.err.asyncIndex, 0);
