@@ -284,6 +284,7 @@ describe('flow', function() {
         try {
           this.next();
         } catch (e) {
+          assert.strictEqual(e.name, 'UnhandledError');
           done();
         }
       }
@@ -507,7 +508,6 @@ describe('flow', function() {
     flow(
       myFlow,
       function () {
-        console.log('aaa');
         assert.strictEqual(this.err.name, 'AsyncError');
         assert.strictEqual(this.err.stepName, 'step2');
         assert.strictEqual(this.err.stepIndex, 1);
