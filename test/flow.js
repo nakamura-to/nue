@@ -82,7 +82,7 @@ describe('flow', function() {
         this.next();
       },
       function () {
-        this.end(null, 'aaa', 123);
+        this.end('aaa', 123);
       },
       function () {
         this.data += 'c';
@@ -103,16 +103,13 @@ describe('flow', function() {
         this.next();
       },
       function () {
-        this.end('ERROR', 'aaa', 123);
+       throw new Error('ERROR');
       },
       function () {
         assert.ok(false);
       },
-      function (string, number) {
-        assert.strictEqual(this.err, 'ERROR');
-        this.err = null;
-        assert.strictEqual(string, 'aaa');
-        assert.strictEqual(number, 123);
+      function () {
+        assert.strictEqual(this.err.message, 'ERROR');
         done();
       }
     )();
@@ -276,7 +273,7 @@ describe('flow', function() {
   it('should notify an unhandled error', function (done) {
     flow(
       function () {
-        this.end(new Error('hoge'));
+        throw new Error('hoge');
       },
       function () {
         this.next();
