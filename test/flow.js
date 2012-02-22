@@ -516,4 +516,21 @@ describe('flow', function() {
       }
     )();
   });
+
+  it('should name functions', function (done) {
+    flow(
+      function step1() {
+        assert.strictEqual(this.stepName, 'step1');
+        this.next();
+      },
+      function step2() {
+        assert.strictEqual(this.stepName, 'step2');
+        process.nextTick(this.async());
+      },
+      function step3() {
+        assert.strictEqual(this.stepName, 'step3');
+        done();
+      }
+    )();
+  });
 });
