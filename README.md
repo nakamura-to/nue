@@ -16,48 +16,55 @@ var flow = require('nue').flow;
 var fs = require('fs');
 
 var myFlow = flow(
-  function (file1, file2) {
+  function readFiles(file1, file2) {
     fs.readFile(file1, 'utf8', this.async());
     fs.readFile(file2, 'utf8', this.async());
   },
-  function (data1, data2) {
+  function concat(data1, data2) {
     this.next(data1 + data2);
   },
-  function (data) {
+  function end(data) {
     if (this.err) throw this.err;
     console.log(data);
     console.log('done');
     this.next();
   }
 );
-
 myFlow('file1', 'file2');
 ```
 
 ## API
 
-<a name="flow" />
-### flow([Function functions...]) -> Function
+### flow([Function steps...]) -> Function
 
 Return a function which represents the control-flow.
 
 > Arguments
 
-* `functions`: Optional. Functions which are executed in series.
+* `steps`: Optional. Functions which are executed in series.
 
 > Context
 
-`this` context of each function in a flow has following properties.
+`this` context of each step in a flow has following properties.
 
 * `next`: Function. A function to execute a next function immediately.  
 * `async`: Function. A function to accept parameters for a next function and return a callback. 
-* `end`: Function. A function to execute a last function to end a control-flow. The first parameter is an error object.
+* `end`: Function. A function to execute a last function to end a control-flow.
 * `data`: Object : A object to share arbitrary data between functions in a control-flow.
 * `args`: Array : An array equivalent to `arguments` for a function.
+* `flowName`: String : flow name.
+* `stepName`: String : step name.
 
 In addition to the above ones, the context of the last function has a following property.
 
-* `err`: Object. An object represents an error which passed from the `end` function.
+* `err`: Object. An object represents an error which is thrown explicitly or passed to an async callback as first argument.
+
+### flow(String flowName) -> Function
+
+Return a function which represents above API.
+
+* `flowName`: Required. Flow name which is used for debug.
+
 
 ## Flow Nesting
 
@@ -67,18 +74,18 @@ A flow can be nested.
 var flow = require('nue').flow;
 var fs = require('fs');
 
-var subFlow = flow(
-  function (file) {
+var subFlow = flow('subFlow')(
+  function readFile(file) {
     fs.readFile(file, 'utf8', this.async());
   }
 );
 
-var mainFlow = flow(
-  function () {
+var mainFlow = flow('mainFlow')(
+  function start() {
     this.next('file1');
   },
   subFlow,
-  function (data) {
+  function end(data) {
     if (this.err) throw this.err;
     console.log(data);
     console.log('done');
@@ -96,7 +103,7 @@ arguments are passed with `this.next` or `this.async`.
 var flow = require('nue').flow;
 var fs = require('fs');
 
-var myFlow = flow(
+var myFlow = flow('myFlow')(
   function (file1, file2) {
     fs.readFile(file1, 'utf8', this.async(file1));
     fs.readFile(file2, 'utf8', this.async(file2));
@@ -123,7 +130,7 @@ Following example produces same results with above example.
 var flow = require('nue').flow;
 var fs = require('fs');
 
-var myFlow = flow(
+var myFlow = flow('myFlow')(
   function (files) {
     process.nextTick(this.async(files));
     files.forEach(function (file) {
@@ -156,7 +163,7 @@ A nesting flow and any nested flows can't share `this.data`.
 var flow = require('nue').flow;
 var fs = require('fs');
 
-var myFlow = flow(
+var myFlow = flow('myFlow')(
   function (file1, file2) {
     this.data.file1 = file1;
     this.data.file2 = file2;
@@ -179,15 +186,17 @@ myFlow('file1', 'file2');
 
 ## Error Handling
 
-In a last function in a flow, `this.err` represents an error thrown in the flow.
+In a last function in a flow, `this.err` represents an error which is thrown explicitly or passed to an async callback as first argument. 
 To indicate error handling completion, you must assign `null` to `this.err`.
 
 ```js
 var flow = require('nue').flow;
 var fs = require('fs');
 
-var myFlow = flow(
+var myFlow = flow('myFlow')(
   function (file1, file2) {
+    if (!file1) throw new Error('file1 is illegal.');
+    if (!file2) throw new Error('file2 is illegal.');
     fs.readFile(file1, 'utf8', this.async());
     fs.readFile(file2, 'utf8', this.async());
   },
@@ -219,7 +228,7 @@ Following example shows how to test a flow and a function with Mocha.
 var flow = require('nue').flow;
 var fs = require('fs');
 
-var concatFiles = flow(
+var concatFiles = flow('concatFiles')(
   function (file1, file2) {
     fs.readFile(file1, 'utf8', this.async());
     fs.readFile(file2, 'utf8', this.async());
