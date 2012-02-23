@@ -6,9 +6,9 @@ var myFlow = flow('myFlow')(
     fs.readFile(file1, 'utf8', this.async(file1));
     fs.readFile(file2, 'utf8', this.async(file2));
   },
-  function concat(file1, data1, file2, data2) {
-    console.log(file1 + ' and ' + file2 + ' have been read.');
-    this.next(data1 + data2);
+  function concat(data1, data2) {
+    console.log(data1[0] + ' and ' + data2[0] + ' have been read.');
+    this.next(data1[1] + data2[1]);
   },
   function end(data) {
     if (this.err) throw this.err;

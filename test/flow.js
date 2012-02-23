@@ -179,21 +179,31 @@ describe('flow', function() {
       function () {
         var f = this.async(1, true);
         var g = this.async(2, false);
+        var x = this.async();
+        var y = this.async();
         setTimeout(function () {
           f(null, 'hoge');
         }, 50);
         setTimeout(function () {
           g(null, 'foo');
         }, 0);
+        setTimeout(function () {
+          x(null, 'bar');
+        }, 0);
+        setTimeout(function () {
+          y(null);
+        }, 0);
       },
-      function (number1, bool1, string1, number2, bool2, string2) {
+      function (asyncResult1, asyncResult2, asyncResult3, asyncResult4) {
         assert.ok(!this.err);
-        assert.strictEqual(number1, 1);
-        assert.strictEqual(bool1, true);
-        assert.strictEqual(string1, 'hoge');
-        assert.strictEqual(number2, 2);
-        assert.strictEqual(bool2, false);
-        assert.strictEqual(string2, 'foo');
+        assert.strictEqual(asyncResult1[0], 1);
+        assert.strictEqual(asyncResult1[1], true);
+        assert.strictEqual(asyncResult1[2], 'hoge');
+        assert.strictEqual(asyncResult2[0], 2);
+        assert.strictEqual(asyncResult2[1], false);
+        assert.strictEqual(asyncResult2[2], 'foo');
+        assert.strictEqual(asyncResult3, 'bar');
+        assert.strictEqual(asyncResult4, undefined);
         done();
       }
     )();
