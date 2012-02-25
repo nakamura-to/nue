@@ -17,7 +17,7 @@ function read(file) {
 
 var assert = require('assert');
 
-describe('concatFiles flow', function () {
+describe('flow `concatFiles`', function () {
   it('can be tested', function (done) {
     flow(
       concatFiles,
@@ -30,7 +30,7 @@ describe('concatFiles flow', function () {
   });
 });
 
-describe('read function', function () {
+describe('function `read`', function () {
   it('can be tested', function (done) {
     flow(
       read,

@@ -3,8 +3,8 @@ var fs = require('fs');
 
 var myFlow = flow('myFlow')(
   function readFiles(file1, file2) {
-    if (!file1) throw new Error('file1 is illegal.');
-    if (!file2) throw new Error('file2 is illegal.');
+    if (!file1) this.endWith(new Error('file1 is illegal.'));
+    if (!file2) this.endWith(new Error('file2 is illegal.'));
     fs.readFile(file1, 'utf8', this.async());
     fs.readFile(file2, 'utf8', this.async());
   },

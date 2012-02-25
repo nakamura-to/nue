@@ -28,7 +28,6 @@ flow('mainFlow')(
       console.log(this.stepName);
       this.err = null;
     }
-    console.log(this.stepName);
     console.log('done');
     this.next();
   }

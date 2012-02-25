@@ -16,4 +16,5 @@ var myFlow = flow(
     this.next();
   }
 );
+
 myFlow('file1', 'file2');
