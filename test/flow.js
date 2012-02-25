@@ -3,7 +3,7 @@ var fs = require('fs');
 var assert = require('assert');
 
 describe('flow', function() {
-  it('should chain functions with "next"', function (done) {
+  it('should chain functions with `next`', function (done) {
     flow(
       function () {
         assert.strictEqual(this.flowName, '');
@@ -32,7 +32,7 @@ describe('flow', function() {
     )();
   });
 
-  it('should chain functions with "async"', function (done) {
+  it('should chain functions with `async`', function (done) {
     flow(
       function () {
         this.data.a = true;
@@ -78,7 +78,7 @@ describe('flow', function() {
     )();
   });
 
-  it('should exit with no error', function (done) {
+  it('should exit without error', function (done) {
     flow(
       function () {
         this.next();
@@ -99,7 +99,7 @@ describe('flow', function() {
     )();
   });
 
-  it('should exit with an error', function (done) {
+  it('should exit throwing an error', function (done) {
     flow(
       function () {
         this.next();
@@ -117,18 +117,78 @@ describe('flow', function() {
     )();
   });
 
-  it('should exit from an inner flow with an error', function (done) {
+  it('should exit using `end`', function (done) {
+    flow(
+      function () {
+        this.next();
+      },
+      function () {
+        this.end(1, 'aaa');
+      },
+      function () {
+        assert.ok(false);
+      },
+      function (number, string) {
+        assert.strictEqual(number, 1);
+        assert.strictEqual(string, 'aaa');
+        done();
+      }
+    )();
+  });
+
+  it('should exit using `endWith`', function (done) {
+    flow(
+      function () {
+        this.next();
+      },
+      function () {
+        this.endWith(new Error('ERROR'));
+      },
+      function () {
+        assert.ok(false);
+      },
+      function () {
+        assert.strictEqual(this.err.message, 'ERROR');
+        done();
+      }
+    )();
+  });
+
+  it('should exit from an inner flow using `end`', function (done) {
     flow(
       function () {
         this.next();
       },
       flow(
         function () {
-          this.end('ERROR');
+          this.end('hoge');
+        },function () {
+          assert.ok(false);
+        },function (value) {
+          assert.strictEqual(value, 'hoge');
+          this.next();
+        }
+      ),
+      function () {
+        this.next();
+      },function () {
+        done();
+      }
+    )();
+  });
+
+  it('should exit from an inner flow using `endWith`', function (done) {
+    flow(
+      function () {
+        this.next();
+      },
+      flow(
+        function () {
+          this.endWith(new Error('ERROR'));
         },function () {
           assert.ok(false);
         },function () {
-          assert.strictEqual(this.err, 'ERROR');
+          assert.strictEqual(this.err.message, 'ERROR');
           this.err = null;
           this.next();
         }
@@ -153,7 +213,7 @@ describe('flow', function() {
     )(1, true, 'hoge');
   });
 
-  it('should pass arguments with "next" between functions"', function (done) {
+  it('should pass arguments using `next` between functions"', function (done) {
     flow(
       function () {
         this.next(1, true, 'hoge');
@@ -174,7 +234,7 @@ describe('flow', function() {
     )();
   });
 
-  it('should pass arguments with "async" between functions"', function (done) {
+  it('should pass arguments using `async` between functions"', function (done) {
     flow(
       function () {
         var f = this.async(1, true);
@@ -209,7 +269,7 @@ describe('flow', function() {
     )();
   });
 
-  it('should ignore duplicated "next" calls"', function (done) {
+  it('should ignore duplicated `next` calls"', function (done) {
     flow(
       function () {
         this.next(this);
@@ -257,7 +317,7 @@ describe('flow', function() {
     )();
   });
 
-  it('should handle empty tasks', function (done) {
+  it('should handle empty step', function (done) {
     var myFlow = flow();
     flow(
       myFlow,
@@ -267,7 +327,7 @@ describe('flow', function() {
     )();
   });
 
-  it('should handle single task', function (done) {
+  it('should handle single step', function (done) {
     var myFlow = flow(
       function () {
         assert.ok(!this.err);
@@ -408,6 +468,31 @@ describe('flow', function() {
     )();
   });
 
+  it('should handle an error notified with `endWith` from a LSAT function of a nested flow', function (done) {
+    flow(
+      function () {
+        this.next()
+      },
+      flow(
+        function () {
+          this.next();
+        },
+        function () {
+          this.next();
+        },
+        function () {
+          this.endWith(new Error('hoge'));
+        }
+      ),
+      function () {
+        assert.ok(this.err);
+        assert.strictEqual('hoge', this.err.message);
+        this.err = null;
+        done();
+      }
+    )();
+  });
+
   it('should handle an error in a nested flow', function (done) {
     flow(
       function () {
@@ -456,7 +541,7 @@ describe('flow', function() {
     )();
   });
 
-  it('should chain functions in an array with "next"', function (done) {
+  it('should chain functions in an array using `next`', function (done) {
     flow([
       function () {
         this.data.a = true;
