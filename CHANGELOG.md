@@ -1,5 +1,9 @@
 # Changelog
 
+ - 0.3.0 (2012/02/25)
+   - Change - Now, the first parameter of `this.end` does't indicate an error. To end with an error, use `this.endWith` instead.
+   - Change - Arguments for an async callback are grouped by each `this.async` call. 
+
  - 0.2.0 (2012/02/23)
    - New Feature - an error passed to async callback is notified with NueAsyncError to make debug easy
    - New Feature - an unhandled error is notified with NueUnhandledError to make debug easy

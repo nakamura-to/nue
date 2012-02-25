@@ -137,7 +137,7 @@ var myFlow = flow('myFlow')(
     process.nextTick(this.async(files));
     files.forEach(function (file) {
       fs.readFile(file, 'utf8', this.async());
-    }.bind(this));
+    }, this);
   },
   function concat(files) {
     var data = this.args.slice(1).join('');
