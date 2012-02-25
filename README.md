@@ -48,22 +48,31 @@ Return a function which represents the control-flow.
 
 `this` context of each step in a flow has following properties.
 
-* `next`: Function. A function to execute a next step immediately.  
-* `async`: Function. A function to accept parameters for a next step and return a callback. 
-* `end`: Function. A function to execute a last step immediately to end a control-flow.
-* `endWith`: Function. A function to execute a last step immediately with an error to end a control-flow. The first parameter is an error object. The error object is referred as `this.err` in a last step.
-* `data`: Object : A object to share arbitrary data between steps in a control-flow.
-* `args`: Array : An array equivalent to `arguments` for a step except this is real Array.
-* `flowName`: String : flow name.
-* `stepName`: String : step name.
+* `next`: next([Object values...]) -> Void
+ * A function to execute a next step immediately.  
+* `async`: async([Object values...]) -> Function
+ * A function to accept parameters for a next step and return a callback. 
+* `end`: end([Object values...]) -> Void
+ * A function to execute a last step immediately to end a control-flow.
+* `endWith`: endWith(Object err) -> Void
+ * A function to execute a last step immediately with an error to end a control-flow. The parameter `err` is referred as `this.err` in a last step.
+* `data`: Object
+ * A object to share arbitrary data between steps in a control-flow.
+* `args`: Array
+ * An array equivalent to `arguments` for a step except this is real Array.
+* `flowName`: String
+ * flow name.
+* `stepName`: String
+ * step name.
 
 In addition to above ones, the context of a last step has a following property.
 
-* `err`: Object. An object represents an error which is thrown with `throw`, passed to `this.endWith` or passed to an async callback as first argument.
+* `err`: Object
+ * An object represents an error which is thrown with `throw`, passed to `this.endWith` or passed to an async callback as first argument.
 
 ### flow(String flowName) -> Function
 
-Return a function which represents above API.
+Return a function which represents above another flow API.
 
 * `flowName`: Required. Flow name which is used for debug.
 
@@ -224,7 +233,7 @@ myFlow('file1', 'non-existent-file');
 
 ## Unit Test with Mocha
 
-Following example shows how to test a flow and a function with Mocha.
+Following example shows how to test a flow and a function with [Mocha](http://visionmedia.github.com/mocha/).
 
 ```js
 var flow = require('nue').flow;
