@@ -16,6 +16,7 @@ var mainFlow = flow('mainFlow')(
     if (this.err) throw this.err;
     console.log(data);
     console.log('done');
+    this.next();
   }
 );
 
