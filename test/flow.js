@@ -358,6 +358,26 @@ describe('flow', function() {
     )();
   });
 
+  it('should notify an unhandled error', function (done) {
+    flow(
+      function () {
+        throw new Error('hoge');
+      },
+      function () {
+        this.next();
+      },
+      function () {
+        assert.ok(this.err);
+        try {
+          this.next();
+        } catch (e) {
+          assert.strictEqual(e.name, 'NueUnhandledError');
+          done();
+        }
+      }
+    )();
+  });
+
   it('should provide flow local data in sub-flow', function (done) {
     flow(
       function () {
