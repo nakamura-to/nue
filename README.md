@@ -74,6 +74,8 @@ In addition to above ones, the context of a last step has a following property.
 
 Return a function which represents above another flow API.
 
+> Arguments
+
 * `flowName`: Required. Flow name which is used for debug.
 
 
