@@ -243,7 +243,7 @@ describe('flow', function() {
         var y = this.async();
         setTimeout(function () {
           f(null, 'hoge');
-        }, 50);
+        }, 10);
         setTimeout(function () {
           g(null, 'foo');
         }, 0);
