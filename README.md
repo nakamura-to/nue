@@ -42,7 +42,7 @@ Return a function which represents the control-flow.
 
 > Arguments
 
-* `steps`: Optional. Functions which are executed in series.
+* `steps`: Optional. Optional functions to execute in series.
 
 > Context
 
@@ -58,14 +58,14 @@ Return a function which represents the control-flow.
  * A function to execute a provided function once per array element concurrently. 
 
 * `forEach`: forEach(Number concurrency) -> Function
- * A function to accept a concurrency number and return another forEach function which 
+ * A function to accept a concurrency number and return another `forEach` function which 
 executes a provided function once per array element with the specified cuncurrency. 
-If you use another forEach function directly, default concurrency 10 is used.
+If you use another `forEach` function directly, default concurrency 10 is used.
 
 * `end`: end([Object values...]) -> Void
  * A function to execute a last step immediately to end a control-flow.
 
-* `endWith`: endWith(Object err) -> Void
+* `endWith`: endWith(Error err) -> Void
  * A function to execute a last step immediately with an error to end a control-flow. 
 The parameter `err` is referred as `this.err` in a last step.
 
@@ -89,12 +89,24 @@ passed to an async callback as first argument.
 
 ### flow(String flowName) -> Function
 
-Return a function which represents above another flow API.
+Accept a flow name and return another `flow` function.
 
 > Arguments
 
-* `flowName`: Required. Flow name which is used for debug.
+* `flowName`: Required. Flow name to be used for debug.
 
+### exec(Function fn([fnArgs...]), [Object args...], Function callback(err, [callbackArgs...]))
+
+Execute a function asynchronously.
+
+> Arguments
+
+* `fn`: Required. A flow function or a step function.
+* `fnArgs`: Optional. Optional arguments.
+* `args`: Optional. Some optional objects to be arguments for the `fn` function.  
+* `callback`: Optional. An optional callback to execute once the function completes.
+* `err`: Required. A possible exception.
+* `callbackArgs`: Optional. Optional arguments.
 
 ## Flow Nesting
 
@@ -164,9 +176,9 @@ var fs = require('fs');
 var myFlow = flow('myFlow')(
   function readFiles(files) {
     process.nextTick(this.async(files));
-    files.forEach(function (file) {
+    this.forEach(files, function (file) {
       fs.readFile(file, 'utf8', this.async());
-    }, this);
+    });
   },
   function concat(files) {
     var data = this.args.slice(1).join('');
