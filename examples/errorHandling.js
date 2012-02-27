@@ -15,6 +15,8 @@ var myFlow = flow('myFlow')(
     if (this.err) {
       // handle error
       console.log(this.err.message);
+      // indicate error handling completion
+      this.err = null;
     } else {
       console.log(data);
     }

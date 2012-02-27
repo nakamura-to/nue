@@ -3,14 +3,12 @@ var fs = require('fs');
 
 var myFlow = flow('myFlow')(
   function readFiles(files) {
-    process.nextTick(this.async(files));
-    this.forEach(files, function (file) {
+    this.forEach(2)(files, function (file) {
       fs.readFile(file, 'utf8', this.async());
     });
   },
   function concat(files) {
-    var data = this.args.slice(1).join('');
-    console.log(files.join(' and ') + ' have been read.');
+    var data = this.args.join('');
     this.next(data);
   },
   function end(data) {
@@ -21,4 +19,4 @@ var myFlow = flow('myFlow')(
   }
 );
 
-myFlow(['file1', 'file2']);
+myFlow(['file1', 'file2', 'file1', 'file2']);
