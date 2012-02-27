@@ -50,25 +50,42 @@ Return a function which represents the control-flow.
 
 * `next`: next([Object values...]) -> Void
  * A function to execute a next step immediately.  
+
 * `async`: async([Object values...]) -> Function
  * A function to accept parameters for a next step and return a callback. 
+
+* `forEach`: forEach(Array array, Function(element, elementIndex, traversedArray)) -> Void
+ * A function to execute a provided function once per array element concurrently. 
+
+* `forEach`: forEach(Number concurrency) -> Function
+ * A function to accept a concurrency number and return another forEach function which 
+executes a provided function once per array element with the specified cuncurrency. 
+If you use another forEach function directly, default concurrency 10 is used.
+
 * `end`: end([Object values...]) -> Void
  * A function to execute a last step immediately to end a control-flow.
+
 * `endWith`: endWith(Object err) -> Void
- * A function to execute a last step immediately with an error to end a control-flow. The parameter `err` is referred as `this.err` in a last step.
+ * A function to execute a last step immediately with an error to end a control-flow. 
+The parameter `err` is referred as `this.err` in a last step.
+
 * `data`: Object
  * A object to share arbitrary data between steps in a control-flow.
+
 * `args`: Array
  * An array equivalent to `arguments` for a step except this is real Array.
+
 * `flowName`: String
  * flow name.
+
 * `stepName`: String
  * step name.
 
 In addition to above ones, the context of a last step has a following property.
 
 * `err`: Object
- * An object represents an error which is thrown with `throw`, passed to `this.endWith` or passed to an async callback as first argument.
+ * An object represents an error which is thrown with `throw`, passed to `this.endWith` or 
+passed to an async callback as first argument.
 
 ### flow(String flowName) -> Function
 
