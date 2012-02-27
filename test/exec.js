@@ -1,5 +1,4 @@
 var flow = require('../lib/nue').flow;
-var exec = require('../lib/nue').exec;
 var assert = require('assert');
 
 describe('exec', function() {
@@ -18,8 +17,8 @@ describe('exec', function() {
 
     flow('main')(
       function parallel() {
-        exec(add, 10, 20, this.async());
-        exec(mul, 10, 20, this.async());
+        this.exec(add, 10, 20, this.async());
+        this.exec(mul, 10, 20, this.async());
       },
       function end(result1, result2) {
         assert.ok(!this.err);
@@ -41,8 +40,8 @@ describe('exec', function() {
 
     flow('main')(
       function parallel() {
-        exec(add, 10, 20, this.async());
-        exec(mul, 10, 20, this.async());
+        this.exec(add, 10, 20, this.async());
+        this.exec(mul, 10, 20, this.async());
       },
       function end(result1, result2) {
         assert.ok(!this.err);
