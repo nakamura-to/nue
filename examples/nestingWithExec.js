@@ -1,5 +1,4 @@
 var flow = require('../index').flow;
-var exec = require('../index').exec;
 var fs = require('fs');
 
 var subFlow = flow('subFlow')(
@@ -11,10 +10,11 @@ var subFlow = flow('subFlow')(
 var mainFlow = flow('mainFlow')(
   function start() {
     this.exec(subFlow, 'file1', this.async());
+    this.exec(subFlow, 'file2', this.async());
   },
-  function end(data) {
+  function end(data1, data2) {
     if (this.err) throw this.err;
-    console.log(data);
+    console.log(data1 + data2);
     console.log('done');
     this.next();
   }

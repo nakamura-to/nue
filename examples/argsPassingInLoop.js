@@ -9,9 +9,8 @@ var myFlow = flow('myFlow')(
     });
   },
   function concat(files) {
-    var data = this.args.slice(1).join('');
     console.log(files.join(' and ') + ' have been read.');
-    this.next(data);
+    this.next(this.args.slice(1).join(''));
   },
   function end(data) {
     if (this.err) throw this.err;
