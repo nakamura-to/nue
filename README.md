@@ -62,6 +62,9 @@ Return a function which represents the control-flow.
 executes a provided function once per array element with the specified cuncurrency. 
 If you use another `forEach` function directly, default concurrency 10 is used.
 
+* `exec`: exec(Function function([values...]), [Object args...], Function callback(err, [values...])) -> Void
+ * A function to execute a specified `function` with `args` asynchronously. The `callback` are executed when the `function` is completed.  
+
 * `end`: end([Object values...]) -> Void
  * A function to execute a last step immediately to end a control-flow.
 
@@ -81,6 +84,9 @@ The parameter `err` is referred as `this.err` in a last step.
 * `stepName`: String
  * step name.
 
+* `history`: Array
+ * An array to contain information about executed steps. This is an EXPERIMETAL FEATURE.
+
 In addition to above ones, the context of a last step has a following property.
 
 * `err`: Object
@@ -94,19 +100,6 @@ Accept a flow name and return another `flow` function.
 > Arguments
 
 * `flowName`: Required. Flow name to be used for debug.
-
-### exec(Function fn([fnArgs...]), [Object args...], Function callback(err, [callbackArgs...]))
-
-Execute a function asynchronously.
-
-> Arguments
-
-* `fn`: Required. A flow function or a step function.
-* `fnArgs`: Optional. Optional arguments.
-* `args`: Optional. Some optional objects to be arguments for the `fn` function.  
-* `callback`: Optional. An optional callback to execute once the function completes.
-* `err`: Required. A possible exception.
-* `callbackArgs`: Optional. Optional arguments.
 
 ## Flow Nesting
 
@@ -130,6 +123,36 @@ var mainFlow = flow('mainFlow')(
   function end(data) {
     if (this.err) throw this.err;
     console.log(data);
+    console.log('done');
+    this.next();
+  }
+);
+
+mainFlow();
+```
+
+## Flow Nesting and Asynchronous Execution
+
+A nested sub-flow can be executed asynchronously.
+
+```js
+var flow = require('nue').flow;
+var fs = require('fs');
+
+var subFlow = flow('subFlow')(
+  function readFile(file) {
+    fs.readFile(file, 'utf8', this.async());
+  }
+);
+
+var mainFlow = flow('mainFlow')(
+  function start() {
+    this.exec(subFlow, 'file1', this.async());
+    this.exec(subFlow, 'file2', this.async());
+  },
+  function end(data1, data2) {
+    if (this.err) throw this.err;
+    console.log(data1 + data2);
     console.log('done');
     this.next();
   }
@@ -181,9 +204,8 @@ var myFlow = flow('myFlow')(
     });
   },
   function concat(files) {
-    var data = this.args.slice(1).join('');
     console.log(files.join(' and ') + ' have been read.');
-    this.next(data);
+    this.next(this.args.slice(1).join(''));
   },
   function end(data) {
     if (this.err) throw this.err;
