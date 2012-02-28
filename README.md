@@ -178,7 +178,7 @@ var mainFlow = flow('mainFlow')(
 mainFlow();
 ```
 
-## Parallel Execution
+## Parallel Flow
 
 In Following example,  the flow `par1-1` and `par1-2` are executed in parallel.
 
