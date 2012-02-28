@@ -55,11 +55,11 @@ Return a function which represents the control-flow.
  * A function to accept parameters for a next step and return a callback. 
 
 * `forEach`: forEach(Array array, Function(element, elementIndex, traversedArray)) -> Void
- * A function to execute a provided function once per array element concurrently. 
+ * A function to execute a provided function once per array element in parallel. 
 
 * `forEach`: forEach(Number concurrency) -> Function
  * A function to accept a concurrency number and return another `forEach` function which 
-executes a provided function once per array element with the specified cuncurrency. 
+executes a provided function once per array element in prallel with the specified cuncurrency. 
 If you use another `forEach` function directly, default concurrency 10 is used.
 
 * `exec`: exec(Function function([values...]), [Object args...], Function callback(err, [values...])) -> Void
