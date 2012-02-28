@@ -180,7 +180,7 @@ mainFlow();
 
 ## Parallel Flow
 
-In Following example,  the flow `par1-1` and `par1-2` are executed in parallel.
+In following example, the flow `par1-1` and `par1-2` are executed in parallel.
 
 ```js
 var flow = require('nue').flow;
