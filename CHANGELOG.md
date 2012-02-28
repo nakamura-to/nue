@@ -1,5 +1,11 @@
 # Changelog
 
+ - 0.4.0 (2012/02/27)
+   - New Feature - `nue.parallel` is available to execute some steps in parallel.
+   - New Feature - in a step function, `this.forEach` function is available to execute a provided function once per array element in parallel.
+   - New Feature - in a step function, `this.exec` function is available to execute a step asynchronously.
+   - New Feature - in a step function, `this.history` property is available to contain information about executed steps (EXPERIMENTAL).
+
  - 0.3.0 (2012/02/25)
    - New Feature - in a step function, `this.endWith` is available to end a control-flow with an error.
    - Change - `arguments` for an async callback are grouped by each `this.async` call. 

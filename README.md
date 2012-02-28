@@ -55,11 +55,11 @@ Return a function which represents the control-flow.
  * A function to accept parameters for a next step and return a callback. 
 
 * `forEach`: forEach(Array array, Function(element, elementIndex, traversedArray)) -> Void
- * A function to execute a provided function once per array element concurrently. 
+ * A function to execute a provided function once per array element in parallel. 
 
 * `forEach`: forEach(Number concurrency) -> Function
  * A function to accept a concurrency number and return another `forEach` function which 
-executes a provided function once per array element with the specified cuncurrency. 
+executes a provided function once per array element in prallel with the specified cuncurrency. 
 If you use another `forEach` function directly, default concurrency 10 is used.
 
 * `exec`: exec(Function function([values...]), [Object args...], Function callback(err, [values...])) -> Void
@@ -96,6 +96,23 @@ passed to an async callback as first argument.
 ### flow(String flowName) -> Function
 
 Accept a flow name and return another `flow` function.
+
+> Arguments
+
+* `flowName`: Required. Flow name to be used for debug.
+
+### parallel([Function steps...]) -> Function
+
+Return a function which represents the parallel control-flow.
+The `parallel` must be nested inside a `flow` or another `parallel`.
+
+> Arguments
+
+* `steps`: Optional. Optional functions to execute in parallel.
+
+### parallel(String flowName) -> Function
+
+Accept a flow name and return another `parallel` function.
 
 > Arguments
 
@@ -159,6 +176,39 @@ var mainFlow = flow('mainFlow')(
 );
 
 mainFlow();
+```
+
+## Parallel Flow
+
+In Following example,  the flow `par1-1` and `par1-2` are executed in parallel.
+
+```js
+var flow = require('nue').flow;
+var parallel = require('nue').parallel;
+
+var myFlow = flow('main')(
+  function one() { this.next(); },
+  function two() { this.next(); },
+  parallel('par1')(
+    flow('par1-1')(
+      function three() { this.next(); },
+      function four() { this.next(); }
+    ),
+    flow('par1-2')(
+      function five() { this.next(); },
+      function six() { this.next(); }
+    )
+  ),
+  function seven() { this.next(); },
+  function eight() { this.next(); },
+  function allDone() {
+    if (this.err) throw this.err;
+    console.log(this.history);
+    this.next();
+  }
+);
+
+myFlow();
 ```
 
 ## Arguments Passing Between Functions
