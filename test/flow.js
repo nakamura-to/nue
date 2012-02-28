@@ -1,4 +1,5 @@
 var flow = require('../lib/nue').flow;
+var parallel = require('../lib/nue').parallel;
 var fs = require('fs');
 var assert = require('assert');
 
@@ -751,4 +752,90 @@ describe('flow', function() {
       }
     )();
   });
+
+  it('should execute other flows', function (done) {
+    var add = flow('add')(
+      function addStep(x, y) {
+        this.next(x + y);
+      }
+    );
+
+    var mul = flow('mul')(
+      function mulStep(x, y) {
+        this.next(x * y);
+      }
+    );
+
+    flow('main')(
+      function parallel() {
+        this.exec(add, 10, 20, this.async());
+        this.exec(mul, 10, 20, this.async());
+      },
+      function end(result1, result2) {
+        assert.ok(!this.err);
+        assert.strictEqual(result1, 30);
+        assert.strictEqual(result2, 200);
+        done();
+      }
+    )();
+  });
+
+  it('should execute other parallels', function (done) {
+    var par1 = parallel('par1')(
+      function add(x, y) {
+        this.next(x + y);
+      },
+      function sub(x, y) {
+        this.next(x - y);
+      }
+    );
+
+    var par2 = parallel('par2')(
+      function mul(x, y) {
+        this.next(x * y);
+      },
+      function div(x, y) {
+        this.next(x / y);
+      }
+    );
+
+    flow('main')(
+      function start() {
+        this.exec(par1, 10, 20, this.async());
+        this.exec(par2, 10, 5, this.async());
+      },
+      function end(result1, result2) {
+        assert.ok(!this.err);
+        assert.strictEqual(result1[0], 30);
+        assert.strictEqual(result1[1], -10);
+        assert.strictEqual(result2[0], 50);
+        assert.strictEqual(result2[1], 2);
+        done();
+      }
+    )();
+  });
+
+  it('should execute other functions', function (done) {
+    function add(x, y) {
+      this.next(x + y);
+    }
+
+    function mul(x, y) {
+      this.next(x * y);
+    }
+
+    flow('main')(
+      function parallel() {
+        this.exec(add, 10, 20, this.async());
+        this.exec(mul, 10, 20, this.async());
+      },
+      function end(result1, result2) {
+        assert.ok(!this.err);
+        assert.strictEqual(result1, 30);
+        assert.strictEqual(result2, 200);
+        done();
+      }
+    )();
+  });
+
 });
