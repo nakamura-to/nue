@@ -4,8 +4,8 @@ var fs = require('fs');
 var myFlow = flow('myFlow')(
   function readFiles(files) {
     process.nextTick(this.async(files));
-    this.each(files, function (file, asyncGroup) {
-      fs.readFile(file, 'utf8', asyncGroup());
+    this.each(files, function (file, group) {
+      fs.readFile(file, 'utf8', group());
     });
   },
   function concat(files, contents) {
