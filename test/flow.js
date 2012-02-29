@@ -720,14 +720,14 @@ describe('flow', function() {
     var indexes = [];
     flow('myFlow')(
       function step1() {
-        this.forEach(array, function (element, i, original) {
+        this.forEach(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
-          process.nextTick(this.async(element));
+          process.nextTick(group(element));
         });
       },
-      function step2() {
-        assert.deepEqual(this.args, array);
+      function step2(results) {
+        assert.deepEqual(results, array);
         assert.deepEqual(indexes, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
         done();
       }
@@ -739,14 +739,14 @@ describe('flow', function() {
     var indexes = [];
     flow('myFlow')(
       function step1() {
-        this.forEach(1)(array, function (element, i, original) {
+        this.forEach(1)(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
-          process.nextTick(this.async(element));
+          process.nextTick(group(element));
         });
       },
-      function step2() {
-        assert.deepEqual(this.args, array);
+      function step2(results) {
+        assert.deepEqual(results, array);
         assert.deepEqual(indexes, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
         done();
       }

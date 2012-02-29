@@ -22,12 +22,12 @@ describe('parallel', function() {
           this.next('BBB');
         }
       ),
-      function () {
+      function (results) {
         assert.ok(!this.err);
         assert.ok(a);
         assert.ok(b);
         assert.strictEqual(log, 'ba');
-        assert.deepEqual(['AAA', 'BBB'], this.args);
+        assert.deepEqual(['AAA', 'BBB'], results);
         done();
       }
     )();
@@ -45,10 +45,10 @@ describe('parallel', function() {
           this.end('BBB');
         }
       ),
-      function (a, b) {
+      function (results) {
         assert.ok(!this.err);
-        assert.strictEqual(a, 'AAA');
-        assert.strictEqual(b, 'BBB');
+        assert.strictEqual(results[0], 'AAA');
+        assert.strictEqual(results[1], 'BBB');
         done();
       }
     )();
@@ -97,10 +97,10 @@ describe('parallel', function() {
           this.next(x * y);
         }
       ),
-      function (result1, result2) {
+      function (results) {
         assert.ok(!this.err);
-        assert.strictEqual(result1, 30);
-        assert.strictEqual(result2, 200);
+        assert.strictEqual(results[0], 30);
+        assert.strictEqual(results[1], 200);
         done();
       }
     )();

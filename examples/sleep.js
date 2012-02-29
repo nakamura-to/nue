@@ -1,15 +1,13 @@
 var flow = require('../index').flow;
 
-function sleep(flow, ms) {
-  setTimeout(function () {
-    flow.next();
-  }, ms);
+function sleep(ms) {
+  setTimeout(this.async(), ms);
 }
 
 flow('myFlow')(
   function start() {
     console.log('wait... ' + new Date());
-    sleep(this, 1000);
+    this.exec(sleep, 1000, this.async());
   },
   function end() {
     console.log('ok... ' + new Date());
