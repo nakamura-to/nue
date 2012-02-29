@@ -720,7 +720,7 @@ describe('flow', function() {
     var indexes = [];
     flow('myFlow')(
       function step1() {
-        this.each(array, function (element, group, i, original) {
+        this.parallelEach(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
           process.nextTick(group(element));
@@ -739,7 +739,7 @@ describe('flow', function() {
     var indexes = [];
     flow('myFlow')(
       function step1() {
-        this.each(1)(array, function (element, group, i, original) {
+        this.parallelEach(1)(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
           process.nextTick(group(element));
