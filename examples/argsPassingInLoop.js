@@ -1,15 +1,17 @@
 var flow = require('../index').flow;
+var as = require('../index').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
   function readFiles(files) {
-    process.nextTick(this.async(files));
     this.parallelEach(files, function (file, group) {
-      fs.readFile(file, 'utf8', group());
+      fs.readFile(file, 'utf8', group({name: file, content: as(1)}));
     });
   },
-  function concat(files, contents) {
-    console.log(files.join(' and ') + ' have been read.');
+  function concat(files) {
+    var names = files.map(function (f) { return f.name; });
+    var contents = files.map(function (f) { return f.content});
+    console.log(names.join(' and ') + ' have been read.');
     this.next(contents.join(''));
   },
   function end(data) {
@@ -21,3 +23,4 @@ var myFlow = flow('myFlow')(
 );
 
 myFlow(['file1', 'file2']);
+

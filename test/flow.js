@@ -1,5 +1,6 @@
 var flow = require('../lib/nue').flow;
 var parallel = require('../lib/nue').parallel;
+var as = require('../lib/nue').as;
 var fs = require('fs');
 var assert = require('assert');
 
@@ -238,8 +239,8 @@ describe('flow', function() {
   it('should pass arguments using `async` between functions"', function (done) {
     flow(
       function () {
-        var f = this.async(1, true);
-        var g = this.async(2, false);
+        var f = this.async({number: 1, bool: true, result: as(1)});
+        var g = this.async({number: 2, bool: false, result: as(1)});
         var x = this.async();
         var y = this.async();
         setTimeout(function () {
@@ -257,12 +258,12 @@ describe('flow', function() {
       },
       function (asyncResult1, asyncResult2, asyncResult3, asyncResult4) {
         assert.ok(!this.err);
-        assert.strictEqual(asyncResult1[0], 1);
-        assert.strictEqual(asyncResult1[1], true);
-        assert.strictEqual(asyncResult1[2], 'hoge');
-        assert.strictEqual(asyncResult2[0], 2);
-        assert.strictEqual(asyncResult2[1], false);
-        assert.strictEqual(asyncResult2[2], 'foo');
+        assert.strictEqual(asyncResult1.number, 1);
+        assert.strictEqual(asyncResult1.bool, true);
+        assert.strictEqual(asyncResult1.result, 'hoge');
+        assert.strictEqual(asyncResult2.number, 2);
+        assert.strictEqual(asyncResult2.bool, false);
+        assert.strictEqual(asyncResult2.result, 'foo');
         assert.strictEqual(asyncResult3, 'bar');
         assert.strictEqual(asyncResult4, undefined);
         done();
@@ -723,7 +724,10 @@ describe('flow', function() {
         this.parallelEach(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
-          process.nextTick(group(element));
+          var callback = group();
+          process.nextTick(function () {
+            callback(null, element)
+          });
         });
       },
       function step2(results) {
@@ -742,7 +746,10 @@ describe('flow', function() {
         this.parallelEach(1)(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
-          process.nextTick(group(element));
+          var callback = group();
+          process.nextTick(function () {
+            callback(null, element)
+          });
         });
       },
       function step2(results) {
