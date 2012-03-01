@@ -7,6 +7,7 @@ var myFlow = flow('myFlow')(
     this.parallelEach(files, function (file, group) {
       fs.readFile(file, 'utf8', group({name: file, content: as(1)}));
     });
+    this.await();
   },
   function concat(files) {
     var names = files.map(function (f) { return f.name; });

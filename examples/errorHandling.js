@@ -7,6 +7,7 @@ var myFlow = flow('myFlow')(
     if (!file2) this.endWith(new Error('file2 is illegal.'));
     fs.readFile(file1, 'utf8', this.async());
     fs.readFile(file2, 'utf8', this.async());
+    this.await();
   },
   function concat(data1, data2) {
     this.next(data1 + data2);

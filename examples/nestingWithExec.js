@@ -4,6 +4,7 @@ var fs = require('fs');
 var subFlow = flow('subFlow')(
   function readFile(file) {
     fs.readFile(file, 'utf8', this.async());
+    this.await();
   }
 );
 
@@ -11,6 +12,7 @@ var mainFlow = flow('mainFlow')(
   function start() {
     this.exec(subFlow, 'file1', this.async());
     this.exec(subFlow, 'file2', this.async());
+    this.await();
   },
   function end(data1, data2) {
     if (this.err) throw this.err;

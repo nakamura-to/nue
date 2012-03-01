@@ -5,6 +5,7 @@ var concatFiles = flow(
   function (file1, file2) {
     fs.readFile(file1, 'utf8', this.async());
     fs.readFile(file2, 'utf8', this.async());
+    this.await();
   },
   function (data1, data2) {
     this.next(data1 + data2);
@@ -13,6 +14,7 @@ var concatFiles = flow(
 
 function read(file) {
   fs.readFile(file, 'utf8', this.async());
+  this.await();
 }
 
 var assert = require('assert');

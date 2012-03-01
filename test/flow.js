@@ -39,17 +39,16 @@ describe('flow', function() {
       function () {
         this.data.a = true;
         this.data.acc = 'a';
-        var f = this.async();
-        var g = this.async();
         var self = this;
         process.nextTick(function () {
           self.data.b = true;
-          f();
+          self.async()();
         });
         process.nextTick(function () {
           self.data.c = true;
-          g();
+          self.async()();
         });
+        this.await();
       },
       function () {
         this.data.d = true;
@@ -65,6 +64,7 @@ describe('flow', function() {
           self.data.f = true;
           g();
         });
+        this.await();
       },
       function () {
         if (this.err) throw err;
@@ -260,6 +260,7 @@ describe('flow', function() {
         setTimeout(function () {
           y(null);
         }, 0);
+        this.await();
       },
       function (asyncResult1, asyncResult2, asyncResult3, asyncResult4) {
         if (this.err) throw err;
@@ -636,6 +637,7 @@ describe('flow', function() {
       function step2() {
         assert.strictEqual(this.stepName, 'step2');
         process.nextTick(this.async());
+        this.await();
       },
       function step3() {
         if (this.err) throw err;
@@ -743,6 +745,7 @@ describe('flow', function() {
             callback(null, element)
           });
         });
+        this.await();
       },
       function step2(results) {
         if (this.err) throw err;
@@ -766,6 +769,7 @@ describe('flow', function() {
             callback(null, element)
           });
         });
+        this.await();
       },
       function step2(results) {
         if (this.err) throw err;
@@ -793,6 +797,7 @@ describe('flow', function() {
       function parallel() {
         this.exec(add, 10, 20, this.async());
         this.exec(mul, 10, 20, this.async());
+        this.await();
       },
       function end(result1, result2) {
         if (this.err) throw err;
@@ -826,6 +831,7 @@ describe('flow', function() {
       function start() {
         this.exec(par1, 10, 20, this.async());
         this.exec(par2, 10, 5, this.async());
+        this.await();
       },
       function end(result1, result2) {
         if (this.err) throw err;
@@ -851,6 +857,7 @@ describe('flow', function() {
       function parallel() {
         this.exec(add, 10, 20, this.async());
         this.exec(mul, 10, 20, this.async());
+        this.await();
       },
       function end(result1, result2) {
         if (this.err) throw err;
