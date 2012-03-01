@@ -24,7 +24,7 @@ describe('flow', function() {
         this.next();
       },
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.ok(this.data.a);
         assert.ok(this.data.b);
         assert.ok(this.data.c);
@@ -43,14 +43,12 @@ describe('flow', function() {
         process.nextTick(function () {
           self.data.b = true;
           self.async()();
+          self.await();
         });
-        process.nextTick(function () {
-          self.data.c = true;
-          self.async()();
-        });
-        this.await();
       },
       function () {
+        assert.ok(this.data.a);
+        assert.ok(this.data.b);
         this.data.d = true;
         this.data.acc += 'd';
         var f = this.async();
@@ -67,10 +65,9 @@ describe('flow', function() {
         this.await();
       },
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.ok(this.data.a);
         assert.ok(this.data.b);
-        assert.ok(this.data.c);
         assert.ok(this.data.d);
         assert.ok(this.data.e);
         assert.ok(this.data.f);
@@ -93,7 +90,7 @@ describe('flow', function() {
         this.next();
       },
       function (string, number) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(string, 'aaa');
         assert.strictEqual(number, 123);
         done();
@@ -131,7 +128,7 @@ describe('flow', function() {
         assert.ok(false);
       },
       function (number, string) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(number, 1);
         assert.strictEqual(string, 'aaa');
         done();
@@ -165,9 +162,11 @@ describe('flow', function() {
       flow(
         function () {
           this.end('hoge');
-        },function () {
+        },
+        function () {
           assert.ok(false);
-        },function (value) {
+        },
+        function (value) {
           assert.strictEqual(value, 'hoge');
           this.next();
         }
@@ -176,7 +175,7 @@ describe('flow', function() {
         this.next();
       },
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         done();
       }
     )();
@@ -190,9 +189,11 @@ describe('flow', function() {
       flow(
         function () {
           this.endWith(new Error('ERROR'));
-        },function () {
+        },
+        function () {
           assert.ok(false);
-        },function () {
+        },
+        function () {
           assert.strictEqual(this.err.message, 'ERROR');
           this.err = null;
           this.next();
@@ -202,7 +203,7 @@ describe('flow', function() {
         this.next();
       },
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         done();
       }
     )();
@@ -232,7 +233,7 @@ describe('flow', function() {
         this.next(2, false, 'foo');
       },
       function (number, bool, string) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(number, 2);
         assert.strictEqual(bool, false);
         assert.strictEqual(string, 'foo');
@@ -263,7 +264,7 @@ describe('flow', function() {
         this.await();
       },
       function (asyncResult1, asyncResult2, asyncResult3, asyncResult4) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(asyncResult1.number, 1);
         assert.strictEqual(asyncResult1.bool, true);
         assert.strictEqual(asyncResult1.result, 'hoge');
@@ -283,7 +284,7 @@ describe('flow', function() {
         this.next(this);
       },
       function (prevContext) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         prevContext.next();
         prevContext.end();
         done();
@@ -319,7 +320,7 @@ describe('flow', function() {
     flow(
       myFlow,
       function (argument) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(argument, 5);
         done();
       }
@@ -331,7 +332,7 @@ describe('flow', function() {
     flow(
       myFlow,
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         done();
       }
     )();
@@ -347,7 +348,7 @@ describe('flow', function() {
     flow(
       myFlow,
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         done();
       }
     )();
@@ -363,7 +364,7 @@ describe('flow', function() {
         this.next();
       },
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(this.data.hoge, 'aaa');
         done();
       }
@@ -407,7 +408,7 @@ describe('flow', function() {
         }
       ),
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(this.data.hoge, 'aaa');
         done();
       }
@@ -526,7 +527,7 @@ describe('flow', function() {
         }
       ),
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         done();
       }
     )();
@@ -545,7 +546,7 @@ describe('flow', function() {
         this.next(a, b, c);
       },
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(arguments.length, 3);
         assert.strictEqual(arguments[0], 1);
         assert.strictEqual(arguments[1], 'aaa');
@@ -573,7 +574,7 @@ describe('flow', function() {
         this.next();
       },
       function () {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.ok(this.data.a);
         assert.ok(this.data.b);
         assert.ok(this.data.c);
@@ -589,7 +590,8 @@ describe('flow', function() {
         this.next();
       },
       function step2() {
-        fs.readFile('non-existent-file', 'utf8', this.async())
+        fs.readFile('non-existent-file', 'utf8', this.async());
+        this.await();
       },
       function step3() {
         assert.ok(false);
@@ -640,7 +642,7 @@ describe('flow', function() {
         this.await();
       },
       function step3() {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(this.stepName, 'step3');
         done();
       }
@@ -655,7 +657,7 @@ describe('flow', function() {
         this.next();
       },
       function step2() {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(this.flowName, 'myFlow');
         assert.strictEqual(this.stepName, 'step2');
         done();
@@ -692,7 +694,7 @@ describe('flow', function() {
         }
       ),
       function step5() {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(this.history.length, 11);
         assert.strictEqual(this.history[0].flowName, 'main');
         assert.strictEqual(this.history[0].stepName, 'step1');
@@ -747,7 +749,7 @@ describe('flow', function() {
         this.await();
       },
       function step2(results) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.deepEqual(results, array);
         assert.deepEqual(indexes, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
         done();
@@ -771,7 +773,7 @@ describe('flow', function() {
         this.await();
       },
       function step2(results) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.deepEqual(results, array);
         assert.deepEqual(indexes, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
         done();
@@ -799,7 +801,7 @@ describe('flow', function() {
         this.await();
       },
       function end(result1, result2) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(result1, 30);
         assert.strictEqual(result2, 200);
         done();
@@ -833,7 +835,7 @@ describe('flow', function() {
         this.await();
       },
       function end(result1, result2) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(result1[0], 30);
         assert.strictEqual(result1[1], -10);
         assert.strictEqual(result2[0], 50);
@@ -859,7 +861,7 @@ describe('flow', function() {
         this.await();
       },
       function end(result1, result2) {
-        if (this.err) throw err;
+        if (this.err) throw this.err;
         assert.strictEqual(result1, 30);
         assert.strictEqual(result2, 200);
         done();
