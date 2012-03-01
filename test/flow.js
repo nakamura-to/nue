@@ -737,12 +737,11 @@ describe('flow', function() {
     var indexes = [];
     flow('myFlow')(
       function step1() {
-        this.parallelEach(array, function (element, group, i, original) {
+        this.asyncEach(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
-          var callback = group();
           process.nextTick(function () {
-            callback(null, element)
+            group()(null, element)
           });
         });
         this.await();
@@ -761,7 +760,7 @@ describe('flow', function() {
     var indexes = [];
     flow('myFlow')(
       function step1() {
-        this.parallelEach(1)(array, function (element, group, i, original) {
+        this.asyncEach(1)(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
           var callback = group();

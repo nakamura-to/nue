@@ -4,7 +4,7 @@ var fs = require('fs');
 
 var myFlow = flow('myFlow')(
   function readFiles(files) {
-    this.parallelEach(files, function (file, group) {
+    this.asyncEach(files, function (file, group) {
       fs.readFile(file, 'utf8', group({name: file, content: as(1)}));
     });
     this.await();
