@@ -73,9 +73,8 @@ describe('parallel', function() {
           this.endWith(new Error('BBB'));
         }
       ),
-      function () {
+      function end() {
         assert.ok(this.err);
-        assert.strictEqual(this.err.cause.message, 'BBB');
         assert.ok(!a);
         assert.ok(b);
         assert.strictEqual(log, 'b');
