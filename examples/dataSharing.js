@@ -7,7 +7,6 @@ var myFlow = flow('myFlow')(
     this.data.file2 = file2;
     fs.readFile(file1, 'utf8', this.async());
     fs.readFile(file2, 'utf8', this.async());
-    this.await();
   },
   function concat(data1, data2) {
     this.next(data1 + data2);

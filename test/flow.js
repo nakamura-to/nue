@@ -39,11 +39,11 @@ describe('flow', function() {
       function () {
         this.data.a = true;
         this.data.acc = 'a';
+        var callback = this.async()
         var self = this;
         process.nextTick(function () {
           self.data.b = true;
-          self.async()();
-          self.await();
+          callback();
         });
       },
       function () {
@@ -62,7 +62,6 @@ describe('flow', function() {
           self.data.f = true;
           g();
         });
-        this.await();
       },
       function () {
         if (this.err) throw this.err;
@@ -261,7 +260,6 @@ describe('flow', function() {
         setTimeout(function () {
           y(null);
         }, 0);
-        this.await();
       },
       function (asyncResult1, asyncResult2, asyncResult3, asyncResult4) {
         if (this.err) throw this.err;
@@ -591,7 +589,6 @@ describe('flow', function() {
       },
       function step2() {
         fs.readFile('non-existent-file', 'utf8', this.async());
-        this.await();
       },
       function step3() {
         assert.ok(false);
@@ -639,7 +636,6 @@ describe('flow', function() {
       function step2() {
         assert.strictEqual(this.stepName, 'step2');
         process.nextTick(this.async());
-        this.await();
       },
       function step3() {
         if (this.err) throw this.err;
@@ -746,7 +742,6 @@ describe('flow', function() {
             group()(null, element)
           });
         });
-        this.await();
       },
       function step2(results) {
         if (this.err) throw this.err;
@@ -770,7 +765,6 @@ describe('flow', function() {
             callback(null, element)
           });
         });
-        this.await();
       },
       function step2(results) {
         if (this.err) throw this.err;
@@ -798,7 +792,6 @@ describe('flow', function() {
       function parallel() {
         this.exec(add, 10, 20, this.async());
         this.exec(mul, 10, 20, this.async());
-        this.await();
       },
       function end(result1, result2) {
         if (this.err) throw this.err;
@@ -832,7 +825,6 @@ describe('flow', function() {
       function start() {
         this.exec(par1, 10, 20, this.async());
         this.exec(par2, 10, 5, this.async());
-        this.await();
       },
       function end(result1, result2) {
         if (this.err) throw this.err;
@@ -858,7 +850,6 @@ describe('flow', function() {
       function parallel() {
         this.exec(add, 10, 20, this.async());
         this.exec(mul, 10, 20, this.async());
-        this.await();
       },
       function end(result1, result2) {
         if (this.err) throw this.err;

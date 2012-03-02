@@ -6,7 +6,6 @@ var myFlow = flow('myFlow')(
   function readFiles(file1, file2) {
     fs.readFile(file1, 'utf8', this.async({name: file1, content: as(1)}));
     fs.readFile(file2, 'utf8', this.async({name: file2, content: as(1)}));
-    this.await();
   },
   function concat(file1, file2) {
     console.log(file1.name + ' and ' + file2.name + ' have been read.');

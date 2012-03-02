@@ -4,7 +4,6 @@ var fs = require('fs');
 var subFlow = flow('subFlow')(
   function readFile(file) {
     fs.readFile(file, 'utf8', this.async());
-    this.await();
   }
 );
 
