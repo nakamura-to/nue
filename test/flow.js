@@ -39,7 +39,7 @@ describe('flow', function() {
       function () {
         this.data.a = true;
         this.data.acc = 'a';
-        var callback = this.async()
+        var callback = this.async();
         var self = this;
         process.nextTick(function () {
           self.data.b = true;
@@ -738,8 +738,9 @@ describe('flow', function() {
         this.asyncEach(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
+          var callback = group();
           process.nextTick(function () {
-            group()(null, element)
+            callback(null, element)
           });
         });
       },
@@ -855,6 +856,66 @@ describe('flow', function() {
         if (this.err) throw this.err;
         assert.strictEqual(result1, 30);
         assert.strictEqual(result2, 200);
+        done();
+      }
+    )();
+  });
+
+  it('should include async 1st arg', function (done) {
+    flow('main')(
+      function readFile() {
+        fs.readFile('non-existent-file', 'utf8', this.async(true));
+      },
+      function end(result) {
+        if (this.err) throw this.err;
+        assert.strictEqual(result.name, 'Error');
+        assert.strictEqual(result.errno, 34);
+        done();
+      }
+    )();
+  });
+
+  it('should include async 1st arg and map', function (done) {
+    flow('main')(
+      function readFile() {
+        fs.readFile('non-existent-file', 'utf8', this.async(true, {err: as(0), data: as(1)}));
+      },
+      function end(result) {
+        if (this.err) throw this.err;
+        assert.strictEqual(result.err.name, 'Error');
+        assert.strictEqual(result.err.errno, 34);
+        done();
+      }
+    )();
+  });
+
+  it('should include group 1st arg', function (done) {
+    flow('main')(
+      function readFile() {
+        this.asyncEach(['non-existent-file'], function (file, group) {
+          fs.readFile(file, 'utf8', group(true));
+        });
+      },
+      function end(result) {
+        if (this.err) throw this.err;
+        assert.strictEqual(result.name, 'Error');
+        assert.strictEqual(result.errno, 34);
+        done();
+      }
+    )();
+  });
+
+  it('should include group 1st arg and map', function (done) {
+    flow('main')(
+      function readFile() {
+        this.asyncEach(['non-existent-file'], function (file, group) {
+          fs.readFile(file, 'utf8', group(true, {err: as(0), data: as(1)}));
+        });
+      },
+      function end(result) {
+        if (this.err) throw this.err;
+        assert.strictEqual(result.err.name, 'Error');
+        assert.strictEqual(result.err.errno, 34);
         done();
       }
     )();
