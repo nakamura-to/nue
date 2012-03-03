@@ -5,12 +5,12 @@ var fs = require('fs');
 var myFlow = flow('myFlow')(
   function readFiles(files) {
     this.asyncEach(files, function (file, group) {
-      fs.readFile(file, 'utf8', group({name: file, content: as(1)}));
+      fs.readFile(file, 'utf8', group({name: file, data: as(1)}));
     });
   },
   function concat(files) {
     var names = files.map(function (f) { return f.name; });
-    var contents = files.map(function (f) { return f.content});
+    var contents = files.map(function (f) { return f.data});
     console.log(names.join(' and ') + ' have been read.');
     this.next(contents.join(''));
   },

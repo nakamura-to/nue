@@ -269,8 +269,8 @@ describe('flow', function() {
         assert.strictEqual(asyncResult2.number, 2);
         assert.strictEqual(asyncResult2.bool, false);
         assert.strictEqual(asyncResult2.result, 'foo');
-        assert.strictEqual(asyncResult3, 'bar');
-        assert.strictEqual(asyncResult4, undefined);
+        assert.deepEqual(asyncResult3, ['bar']);
+        assert.deepEqual(asyncResult4, []);
         done();
       }
     )();
@@ -738,9 +738,9 @@ describe('flow', function() {
         this.asyncEach(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
-          var callback = group();
+          var callback = group(as(0));
           process.nextTick(function () {
-            callback(null, element)
+            callback(element)
           });
         });
       },
@@ -791,8 +791,8 @@ describe('flow', function() {
 
     flow('main')(
       function parallel() {
-        this.exec(add, 10, 20, this.async());
-        this.exec(mul, 10, 20, this.async());
+        this.exec(add, 10, 20, this.async(as(1)));
+        this.exec(mul, 10, 20, this.async(as(1)));
       },
       function end(result1, result2) {
         if (this.err) throw this.err;
@@ -824,15 +824,13 @@ describe('flow', function() {
 
     flow('main')(
       function start() {
-        this.exec(par1, 10, 20, this.async());
-        this.exec(par2, 10, 5, this.async());
+        this.exec(par1, 10, 20, this.async(as(1)));
+        this.exec(par2, 10, 5, this.async(as(1)));
       },
       function end(result1, result2) {
         if (this.err) throw this.err;
-        assert.strictEqual(result1[0], 30);
-        assert.strictEqual(result1[1], -10);
-        assert.strictEqual(result2[0], 50);
-        assert.strictEqual(result2[1], 2);
+        assert.deepEqual(result1, [30, -10]);
+        assert.deepEqual(result2, [50, 2]);
         done();
       }
     )();
@@ -849,8 +847,8 @@ describe('flow', function() {
 
     flow('main')(
       function parallel() {
-        this.exec(add, 10, 20, this.async());
-        this.exec(mul, 10, 20, this.async());
+        this.exec(add, 10, 20, this.async(as(1)));
+        this.exec(mul, 10, 20, this.async(as(1)));
       },
       function end(result1, result2) {
         if (this.err) throw this.err;
@@ -864,21 +862,7 @@ describe('flow', function() {
   it('should include async 1st arg', function (done) {
     flow('main')(
       function readFile() {
-        fs.readFile('non-existent-file', 'utf8', this.async(true));
-      },
-      function end(result) {
-        if (this.err) throw this.err;
-        assert.strictEqual(result.name, 'Error');
-        assert.strictEqual(result.errno, 34);
-        done();
-      }
-    )();
-  });
-
-  it('should include async 1st arg and map', function (done) {
-    flow('main')(
-      function readFile() {
-        fs.readFile('non-existent-file', 'utf8', this.async(true, {err: as(0), data: as(1)}));
+        fs.readFile('non-existent-file', 'utf8', this.async({err: as(0), data: as(1)}));
       },
       function end(result) {
         if (this.err) throw this.err;
@@ -893,29 +877,13 @@ describe('flow', function() {
     flow('main')(
       function readFile() {
         this.asyncEach(['non-existent-file'], function (file, group) {
-          fs.readFile(file, 'utf8', group(true));
+          fs.readFile(file, 'utf8', group({err: as(0), data: as(1)}));
         });
       },
-      function end(result) {
+      function end(results) {
         if (this.err) throw this.err;
-        assert.strictEqual(result.name, 'Error');
-        assert.strictEqual(result.errno, 34);
-        done();
-      }
-    )();
-  });
-
-  it('should include group 1st arg and map', function (done) {
-    flow('main')(
-      function readFile() {
-        this.asyncEach(['non-existent-file'], function (file, group) {
-          fs.readFile(file, 'utf8', group(true, {err: as(0), data: as(1)}));
-        });
-      },
-      function end(result) {
-        if (this.err) throw this.err;
-        assert.strictEqual(result.err.name, 'Error');
-        assert.strictEqual(result.err.errno, 34);
+        assert.strictEqual(results[0].err.name, 'Error');
+        assert.strictEqual(results[0].err.errno, 34);
         done();
       }
     )();

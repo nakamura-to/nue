@@ -1,12 +1,13 @@
 var flow = require('../index').flow;
+var as = require('../index').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
   function readFiles(file1, file2) {
     if (!file1) this.endWith(new Error('file1 is illegal.'));
     if (!file2) this.endWith(new Error('file2 is illegal.'));
-    fs.readFile(file1, 'utf8', this.async());
-    fs.readFile(file2, 'utf8', this.async());
+    fs.readFile(file1, 'utf8', this.async(as(1)));
+    fs.readFile(file2, 'utf8', this.async(as(1)));
   },
   function concat(data1, data2) {
     this.next(data1 + data2);
