@@ -738,7 +738,7 @@ describe('flow', function() {
         this.asyncEach(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
-          var callback = group(as(0));
+          var callback = group.async(as(0));
           process.nextTick(function () {
             callback(element)
           });
@@ -761,7 +761,7 @@ describe('flow', function() {
         this.asyncEach(1)(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
-          var callback = group();
+          var callback = group.async();
           process.nextTick(function () {
             callback(null, element)
           });
@@ -877,7 +877,7 @@ describe('flow', function() {
     flow('main')(
       function readFile() {
         this.asyncEach(['non-existent-file'], function (file, group) {
-          fs.readFile(file, 'utf8', group({err: as(0), data: as(1)}));
+          fs.readFile(file, 'utf8', group.async({err: as(0), data: as(1)}));
         });
       },
       function end(results) {
@@ -887,6 +887,31 @@ describe('flow', function() {
         done();
       }
     )();
+  });
+  
+  it('should handle an async callback error in asyncEach', function (done) {
+    flow('main')(
+      function readFile() {
+        process.nextTick(this.async());
+        this.asyncEach(['non-existent-file'], function (file, group) {
+          process.nextTick(group.async());
+          process.nextTick(group.async());
+          fs.readFile(file, 'utf8', group.async(as(1)));
+        });
+      },
+      function end() {
+        assert.strictEqual(this.err.name, 'NueGroupAsyncError');
+        assert.strictEqual(this.err.flowName, 'main');
+        assert.strictEqual(this.err.stepName, 'readFile');
+        assert.strictEqual(this.err.stepIndex, 0);
+        assert.strictEqual(this.err.asyncIndex, 1);
+        assert.strictEqual(this.err.loopIndex, 0);
+        assert.strictEqual(this.err.groupAsyncIndex, 2);
+        assert.ok(this.err.cause);
+        done();
+      }
+    )();
+    
   });
 
 });

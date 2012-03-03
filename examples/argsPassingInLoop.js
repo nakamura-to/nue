@@ -5,7 +5,7 @@ var fs = require('fs');
 var myFlow = flow('myFlow')(
   function readFiles(files) {
     this.asyncEach(files, function (file, group) {
-      fs.readFile(file, 'utf8', group({name: file, data: as(1)}));
+      fs.readFile(file, 'utf8', group.async({name: file, data: as(1)}));
     });
   },
   function concat(files) {
