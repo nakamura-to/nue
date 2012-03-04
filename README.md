@@ -13,12 +13,13 @@ $ npm install nue
 
 ```js
 var flow = require('nue').flow;
+var as = require('as').as;
 var fs = require('fs');
 
-var myFlow = flow(
+var myFlow = flow('myFlow')(
   function readFiles(file1, file2) {
-    fs.readFile(file1, 'utf8', this.async());
-    fs.readFile(file2, 'utf8', this.async());
+    fs.readFile(file1, 'utf8', this.async(as(1)));
+    fs.readFile(file2, 'utf8', this.async(as(1)));
   },
   function concat(data1, data2) {
     this.next(data1 + data2);
@@ -51,15 +52,16 @@ Return a function which represents the control-flow.
 * `next`: next([Object values...]) -> Void
  * A function to execute a next step immediately.  
 
-* `async`: async([Object values...]) -> Function
- * A function to accept parameters for a next step and return a callback. 
+* `async`: async([Object mapping]) -> Function
+ * A function to accept an argument mapping definition for a next step and return a callback. 
 
-* `forEach`: forEach(Array array, Function(element, elementIndex, traversedArray)) -> Void
- * A function to execute a provided function once per array element in parallel. 
+* `asyncEach`: asyncEach(Array array, Function(element, group, elementIndex, traversedArray)) -> Void
+ * A function to execute a provided function once per array element asynchronously. 
+The `group` has a `async` function to accept an argument mapping definition and return a callback.
 
-* `forEach`: forEach(Number concurrency) -> Function
- * A function to accept a concurrency number and return another `forEach` function which 
-executes a provided function once per array element in prallel with the specified cuncurrency. 
+* `asyncEach`: asyncEach(Number concurrency) -> Function
+ * A function to accept a concurrency number and return another `asyncEach` function which 
+executes a provided function once per array element asynchronously with the specified cuncurrency. 
 If you use another `forEach` function directly, default concurrency 10 is used.
 
 * `exec`: exec(Function function([values...]), [Object args...], Function callback(err, [values...])) -> Void
@@ -75,14 +77,11 @@ The parameter `err` is referred as `this.err` in a last step.
 * `data`: Object
  * A object to share arbitrary data between steps in a control-flow.
 
-* `args`: Array
- * An array equivalent to `arguments` for a step except this is real Array.
-
 * `flowName`: String
- * flow name.
+ * A flow name.
 
 * `stepName`: String
- * step name.
+ * A step name.
 
 * `history`: Array
  * An array to contain information about executed steps. This is an EXPERIMETAL FEATURE.
@@ -99,7 +98,7 @@ Accept a flow name and return another `flow` function.
 
 > Arguments
 
-* `flowName`: Required. Flow name to be used for debug.
+* `flowName`: Required. A flow name to be used for debug.
 
 ### parallel([Function steps...]) -> Function
 
@@ -116,7 +115,13 @@ Accept a flow name and return another `parallel` function.
 
 > Arguments
 
-* `flowName`: Required. Flow name to be used for debug.
+* `flowName`: Required. A flow name to be used for debug.
+
+### as(Number index) -> Object
+
+> Arguments
+
+* `index`: Required. An index to map an asynchronous callback argument to a next step argument.
 
 ## Flow Nesting
 
@@ -124,11 +129,12 @@ A flow can be nested.
 
 ```js
 var flow = require('nue').flow;
+var as = require('as').as;
 var fs = require('fs');
 
 var subFlow = flow('subFlow')(
   function readFile(file) {
-    fs.readFile(file, 'utf8', this.async());
+    fs.readFile(file, 'utf8', this.async(as(1)));
   }
 );
 
@@ -137,9 +143,9 @@ var mainFlow = flow('mainFlow')(
     this.next('file1');
   },
   subFlow,
-  function end(data) {
+  function end(result) {
     if (this.err) throw this.err;
-    console.log(data);
+    console.log(result);
     console.log('done');
     this.next();
   }
@@ -154,18 +160,19 @@ A nested sub-flow can be executed asynchronously.
 
 ```js
 var flow = require('nue').flow;
+var as = require('as').as;
 var fs = require('fs');
 
 var subFlow = flow('subFlow')(
   function readFile(file) {
-    fs.readFile(file, 'utf8', this.async());
+    fs.readFile(file, 'utf8', this.async(as(1)));
   }
 );
 
 var mainFlow = flow('mainFlow')(
   function start() {
-    this.exec(subFlow, 'file1', this.async());
-    this.exec(subFlow, 'file2', this.async());
+    this.exec(subFlow, 'file1', this.async(as(1)));
+    this.exec(subFlow, 'file2', this.async(as(1)));
   },
   function end(data1, data2) {
     if (this.err) throw this.err;
@@ -217,16 +224,17 @@ arguments are passed with `this.next` or `this.async`.
 
 ```js
 var flow = require('nue').flow;
+var as = require('as').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
   function readFiles(file1, file2) {
-    fs.readFile(file1, 'utf8', this.async(file1));
-    fs.readFile(file2, 'utf8', this.async(file2));
+    fs.readFile(file1, 'utf8', this.async({name: file1, data: as(1)}));
+    fs.readFile(file2, 'utf8', this.async({name: file2, data: as(1)}));
   },
-  function concat(data1, data2) {
-    console.log(data1[0] + ' and ' + data2[0] + ' have been read.');
-    this.next(data1[1] + data2[1]);
+  function concat(f1, f2) {
+    console.log(f1.name + ' and ' + f2.name + ' have been read.');
+    this.next(f1.data + f2.data);
   },
   function end(data) {
     if (this.err) throw this.err;
@@ -244,18 +252,20 @@ Following example produces same results with above example.
 
 ```js
 var flow = require('nue').flow;
+var as = require('as').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
   function readFiles(files) {
-    process.nextTick(this.async(files));
-    this.forEach(files, function (file) {
-      fs.readFile(file, 'utf8', this.async());
+    this.asyncEach(files, function (file, group) {
+      fs.readFile(file, 'utf8', group.async({name: file, data: as(1)}));
     });
   },
   function concat(files) {
-    console.log(files.join(' and ') + ' have been read.');
-    this.next(this.args.slice(1).join(''));
+    var names = files.map(function (f) { return f.name; });
+    var contents = files.map(function (f) { return f.data});
+    console.log(names.join(' and ') + ' have been read.');
+    this.next(contents.join(''));
   },
   function end(data) {
     if (this.err) throw this.err;
@@ -276,14 +286,15 @@ A nesting flow and any nested flows can't share `this.data`.
 
 ```js
 var flow = require('nue').flow;
+var as = require('as').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
   function readFiles(file1, file2) {
     this.data.file1 = file1;
     this.data.file2 = file2;
-    fs.readFile(file1, 'utf8', this.async());
-    fs.readFile(file2, 'utf8', this.async());
+    fs.readFile(file1, 'utf8', this.async(as(1)));
+    fs.readFile(file2, 'utf8', this.async(as(1)));
   },
   function concat(data1, data2) {
     this.next(data1 + data2);
@@ -306,14 +317,15 @@ To indicate error handling completion, you must assign `null` to `this.err`.
 
 ```js
 var flow = require('nue').flow;
+var as = require('as').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
   function readFiles(file1, file2) {
     if (!file1) this.endWith(new Error('file1 is illegal.'));
     if (!file2) this.endWith(new Error('file2 is illegal.'));
-    fs.readFile(file1, 'utf8', this.async());
-    fs.readFile(file2, 'utf8', this.async());
+    fs.readFile(file1, 'utf8', this.async(as(1)));
+    fs.readFile(file2, 'utf8', this.async(as(1)));
   },
   function concat(data1, data2) {
     this.next(data1 + data2);
@@ -341,12 +353,13 @@ Following example shows how to test a flow and a function with [Mocha](http://vi
 
 ```js
 var flow = require('nue').flow;
+var as = require('as').as;
 var fs = require('fs');
 
 var concatFiles = flow(
   function (file1, file2) {
-    fs.readFile(file1, 'utf8', this.async());
-    fs.readFile(file2, 'utf8', this.async());
+    fs.readFile(file1, 'utf8', this.async(as(1)));
+    fs.readFile(file2, 'utf8', this.async(as(1)));
   },
   function (data1, data2) {
     this.next(data1 + data2);
@@ -354,7 +367,7 @@ var concatFiles = flow(
 );
 
 function read(file) {
-  fs.readFile(file, 'utf8', this.async());
+  fs.readFile(file, 'utf8', this.async(as(1)));
 }
 
 var assert = require('assert');
