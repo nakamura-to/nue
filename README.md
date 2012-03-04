@@ -151,7 +151,7 @@ var myFlow = flow('myFlow')(
 myFlow('file1', 'file2');
 ```
 
-### Aynchronously
+### Asynchronously
 
 To pass asynchronous call results to a next function, arguments mapping definition is necessary.
 The function `as` accepts an index to specify a callback argument and returns arguments mapping definition.
