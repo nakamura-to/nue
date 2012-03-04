@@ -8,19 +8,14 @@ var myFlow = flow('myFlow')(
       fs.readFile(file, 'utf8', group.async({name: file, data: as(1)}));
     });
   },
-  function concat(files) {
+  function end(files) {
+    if (this.err) throw this.err;
     var names = files.map(function (f) { return f.name; });
     var contents = files.map(function (f) { return f.data});
-    console.log(names.join(' and ') + ' have been read.');
-    this.next(contents.join(''));
-  },
-  function end(data) {
-    if (this.err) throw this.err;
-    console.log(data);
-    console.log('done');
+    console.log(names.join(' and ') + ' have been read.'); // file1 and file2 have been read.
+    console.log(contents.join('')); // FILE1FILE2
     this.next();
   }
 );
 
 myFlow(['file1', 'file2']);
-
