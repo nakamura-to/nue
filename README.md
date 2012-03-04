@@ -54,6 +54,8 @@ Return a function which represents the control-flow.
 
 * `async`: async([Object mapping]) -> Function
  * A function to accept an argument mapping definition for a next step and return a callback. 
+`async` can be called many times, but all calls are done in same tick. 
+And all callbacks `async` returns must be called absolutely.
 
 * `asyncEach`: asyncEach(Array array, Function(element, group, elementIndex, traversedArray)) -> Void
  * A function to execute a provided function once per array element asynchronously. 
@@ -122,10 +124,123 @@ Accept a flow name and return another `parallel` function.
 > Arguments
 
 * `index`: Required. An index to map an asynchronous callback argument to a next step argument.
+If the index is zero, an error handling is skipped.
+
+## Arguments Passing Between Functions
+
+Arguments are passed with `this.next` or `this.async`.
+
+### Synchronously
+
+```js
+var flow = require('nue').flow;
+
+var myFlow = flow('myFlow')(
+  function concat(s1, s2) {
+    var length = s1.length + s2.length
+    this.next(s1, s2, length);
+  },
+  function end(s1, s2, length) {
+    if (this.err) throw this.err;
+    console.log(s1 + ' + ' + s2 + ' -> ' + length); // file1 + file2 -> 10
+    console.log('done');
+    this.next();
+  }
+);
+
+myFlow('file1', 'file2');
+```
+
+### Aynchronously
+
+To pass asynchronous call results to a next function, arguments mapping definition is necessary.
+The function `as` accepts an index to specify a callback argument and returns arguments mapping definition.
+The function `this.async` accepts the mapping definition and return a callback.
+When all callbacks are completed, the next function is called with specific arguments.
+
+```js
+var flow = require('nue').flow;
+var as = require('as').as;
+var fs = require('fs');
+
+var myFlow = flow('myFlow')(
+  function readFiles(file1, file2) {
+    fs.readFile(file1, 'utf8', this.async(as(1)));
+    fs.readFile(file2, 'utf8', this.async(as(1)));
+  },
+  function end(data1, data2) {
+    if (this.err) throw this.err;
+    console.log(data1 + data2); // FILE1FILE2
+    console.log('done');
+    this.next();
+  }
+);
+
+myFlow('file1', 'file2');
+```
+
+Arguments mapping definition can contain arbitrary values.
+
+```js
+var flow = require('nue').flow;
+var as = require('as').as;
+var fs = require('fs');
+
+var myFlow = flow('myFlow')(
+  function readFiles(file1, file2) {
+    fs.readFile(file1, 'utf8', this.async({name: file1, data: as(1)}));
+    fs.readFile(file2, 'utf8', this.async({name: file2, data: as(1)}));
+  },
+  function end(f1, f2) {
+    if (this.err) throw this.err;
+    console.log(f1.name + ' and ' + f2.name + ' have been read.'); // file1 and file2 have been read.
+    console.log(f1.data + f2.data); // FILE1FILE2
+    console.log('done');
+    this.next();
+  }
+);
+
+myFlow('file1', 'file2');
+```
+
+## Asynchronous Loop
+
+`this.asyncEach` executes a provided function once per array element asynchronously.
+By default, the number of concurrency is 10.
+
+```js
+var myFlow = flow('myFlow')(
+  function readFiles(files) {
+    this.asyncEach(files, function (file, group) {
+      fs.readFile(file, 'utf8', group.async({name: file, data: as(1)}));
+    });
+  },
+  function end(files) {
+    if (this.err) throw this.err;
+    var names = files.map(function (f) { return f.name; });
+    var contents = files.map(function (f) { return f.data});
+    console.log(names.join(' and ') + ' have been read.'); // file1 and file2 have been read.
+    console.log(contents.join('')); // FILE1FILE2
+    this.next();
+  }
+);
+
+myFlow(['file1', 'file2']);
+```
+
+To change the number of concurrency, specify the number as below.
+
+```js
+  function readFiles(files) {
+    this.asyncEach(5)(files, function (file, group) {
+       ...
+    });
+  },
+```
 
 ## Flow Nesting
 
-A flow can be nested.
+A flow is composable. So it can be nested.
 
 ```js
 var flow = require('nue').flow;
@@ -154,9 +269,9 @@ var mainFlow = flow('mainFlow')(
 mainFlow();
 ```
 
-## Flow Nesting and Asynchronous Execution
+## Asynchronous Flow Execution
 
-A nested sub-flow can be executed asynchronously.
+A flow can be executed asynchronously.
 
 ```js
 var flow = require('nue').flow;
@@ -218,66 +333,6 @@ var myFlow = flow('main')(
 myFlow();
 ```
 
-## Arguments Passing Between Functions
-
-arguments are passed with `this.next` or `this.async`.
-
-```js
-var flow = require('nue').flow;
-var as = require('as').as;
-var fs = require('fs');
-
-var myFlow = flow('myFlow')(
-  function readFiles(file1, file2) {
-    fs.readFile(file1, 'utf8', this.async({name: file1, data: as(1)}));
-    fs.readFile(file2, 'utf8', this.async({name: file2, data: as(1)}));
-  },
-  function concat(f1, f2) {
-    console.log(f1.name + ' and ' + f2.name + ' have been read.');
-    this.next(f1.data + f2.data);
-  },
-  function end(data) {
-    if (this.err) throw this.err;
-    console.log(data);
-    console.log('done');
-    this.next();
-  }
-);
-
-myFlow('file1', 'file2');
-```
-
-`this.async` can be called in loop.
-Following example produces same results with above example.
-
-```js
-var flow = require('nue').flow;
-var as = require('as').as;
-var fs = require('fs');
-
-var myFlow = flow('myFlow')(
-  function readFiles(files) {
-    this.asyncEach(files, function (file, group) {
-      fs.readFile(file, 'utf8', group.async({name: file, data: as(1)}));
-    });
-  },
-  function concat(files) {
-    var names = files.map(function (f) { return f.name; });
-    var contents = files.map(function (f) { return f.data});
-    console.log(names.join(' and ') + ' have been read.');
-    this.next(contents.join(''));
-  },
-  function end(data) {
-    if (this.err) throw this.err;
-    console.log(data);
-    console.log('done');
-    this.next();
-  }
-);
-
-myFlow(['file1', 'file2']);
-```
-
 ## Data Sharing Between Functions
 
 Each step in a flow can share data through `this.data`.
@@ -313,7 +368,7 @@ myFlow('file1', 'file2');
 ## Error Handling
 
 In a last step in a flow, `this.err` represents an error which is thrown with `throw`, passed to `this.endWith` or passed to an async callback as first argument. 
-To indicate error handling completion, you must assign `null` to `this.err`.
+To indicate error handling is completed, you must assign `null` to `this.err`.
 
 ```js
 var flow = require('nue').flow;
