@@ -39,18 +39,18 @@ describe('flow', function() {
       function () {
         this.data.a = true;
         this.data.acc = 'a';
-        this.async()();
+        this.async(as.val())();
         this.data.b = true;
         this.data.acc += 'b';
-        this.async()();
+        this.async(as.val())();
       },
       function () {
         assert.ok(this.data.a);
         assert.ok(this.data.b);
         this.data.d = true;
         this.data.acc += 'd';
-        var f = this.async();
-        var g = this.async();
+        var f = this.async(as.val());
+        var g = this.async(as.val());
         var self = this;
         process.nextTick(function () {
           self.data.e = true;
@@ -244,8 +244,8 @@ describe('flow', function() {
       function () {
         var f = this.async({number: 1, bool: true, result: as(1)});
         var g = this.async({number: 2, bool: false, result: as(1)});
-        var x = this.async();
-        var y = this.async();
+        var x = this.async(as.all());
+        var y = this.async(as.all());
         setTimeout(function () {
           f(null, 'hoge');
         }, 10);
@@ -253,10 +253,10 @@ describe('flow', function() {
           g(null, 'foo');
         }, 0);
         setTimeout(function () {
-          x(null, 'bar');
+          x('bar');
         }, 0);
         setTimeout(function () {
-          y(null);
+          y();
         }, 0);
       },
       function (asyncResult1, asyncResult2, asyncResult3, asyncResult4) {
@@ -586,7 +586,7 @@ describe('flow', function() {
         this.next();
       },
       function step2() {
-        fs.readFile('non-existent-file', 'utf8', this.async());
+        fs.readFile('non-existent-file', 'utf8', this.async(as(1)));
       },
       function step3() {
         assert.ok(false);
@@ -609,7 +609,7 @@ describe('flow', function() {
         this.next();
       },
       function step2() {
-        fs.readFile('non-existent-file', 'utf8', this.async());
+        fs.readFile('non-existent-file', 'utf8', this.async(as(1)));
       }
     );
 
@@ -633,7 +633,7 @@ describe('flow', function() {
       },
       function step2() {
         assert.strictEqual(this.stepName, 'step2');
-        process.nextTick(this.async());
+        process.nextTick(this.async(as.val()));
       },
       function step3() {
         if (this.err) throw this.err;
@@ -759,9 +759,9 @@ describe('flow', function() {
         this.asyncEach(1)(array, function (element, group, i, original) {
           indexes.push(i);
           assert.deepEqual(original, array);
-          var callback = group.async();
+          var callback = group.async(as(0));
           process.nextTick(function () {
-            callback(null, element)
+            callback(element)
           });
         });
       },
@@ -890,10 +890,10 @@ describe('flow', function() {
   it('should handle an async callback error in asyncEach', function (done) {
     flow('main')(
       function readFile() {
-        process.nextTick(this.async());
+        process.nextTick(this.async(as.val()));
         this.asyncEach(['non-existent-file'], function (file, group) {
-          process.nextTick(group.async());
-          process.nextTick(group.async());
+          process.nextTick(group.async(as.val()));
+          process.nextTick(group.async(as.val()));
           fs.readFile(file, 'utf8', group.async(as(1)));
         });
       },
@@ -911,7 +911,7 @@ describe('flow', function() {
     )();    
   });
   
-  it('should pass argument with `as.val`', function () {
+  it('should pass an argument with `as.val`', function () {
     flow('main')(
       function start() {
         process.nextTick(this.async(as.val(100)));
@@ -925,6 +925,51 @@ describe('flow', function() {
         assert.strictEqual('aaa', val2);
         assert.strictEqual(undefined, val3);
         assert.strictEqual('bbb', val4.val);
+      }
+    )();
+  });
+
+  it('should pass an argument with `as.all`', function () {
+    flow('main')(
+      function start() {
+        var callback = this.async(as.all());
+        process.nextTick(function () {
+          callback(1, 2, 3);
+        });
+      },
+      function end(result) {
+        if (this.err) throw this.err;
+        assert.deepEqual([1, 2, 3], result);
+      }
+    )();
+  });
+
+  it('should pass an argument with `as.head`', function () {
+    flow('main')(
+      function start() {
+        var callback = this.async(as.head());
+        process.nextTick(function () {
+          callback(1, 2, 3);
+        });
+      },
+      function end(result) {
+        if (this.err) throw this.err;
+        assert.strictEqual(1, result);
+      }
+    )();
+  });
+
+  it('should pass an argument with `as.tail`', function () {
+    flow('main')(
+      function start() {
+        var callback = this.async(as.tail());
+        process.nextTick(function () {
+          callback(null, 1, 2, 3);
+        });
+      },
+      function end(result) {
+        if (this.err) throw this.err;
+        assert.deepEqual([1, 2, 3], result);
       }
     )();
   });
