@@ -39,12 +39,10 @@ describe('flow', function() {
       function () {
         this.data.a = true;
         this.data.acc = 'a';
-        var callback = this.async();
-        var self = this;
-        process.nextTick(function () {
-          self.data.b = true;
-          callback();
-        });
+        this.async()();
+        this.data.b = true;
+        this.data.acc += 'b';
+        this.async()();
       },
       function () {
         assert.ok(this.data.a);
@@ -70,7 +68,7 @@ describe('flow', function() {
         assert.ok(this.data.d);
         assert.ok(this.data.e);
         assert.ok(this.data.f);
-        assert.strictEqual(this.data.acc, 'ad');
+        assert.strictEqual(this.data.acc, 'abd');
         done();
       }
     )();
