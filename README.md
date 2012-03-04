@@ -333,6 +333,37 @@ var myFlow = flow('main')(
 myFlow();
 ```
 
+Arguments to a parallel flow are passed to every forked functions.
+Parallel flow results are passed to a next funtion as an array.
+The array contains the results of forked functions.
+
+```js
+var flow = require('nue').flow;
+var parallel = require('nue').parallel;
+
+var myFlow = flow('main')(
+  function start() { 
+    this.next(10, 20); 
+  },
+  parallel('parallel')(
+    function add(x, y) { 
+      this.next(x + y); 
+    },
+    function sub(x, y) { 
+      this.next(x - y);
+    }
+  ),
+  function end(results) {
+    if (this.err) throw this.err;
+    console.log('add result: ' + results[0]); // add result: 30 
+    console.log('sub result: ' + results[1]); // sub result: -10
+    this.next();
+  }
+);
+
+myFlow();
+```
+
 ## Data Sharing Between Functions
 
 Each step in a flow can share data through `this.data`.
