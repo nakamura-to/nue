@@ -209,6 +209,10 @@ myFlow('file1', 'file2');
 By default, the number of concurrency is 10.
 
 ```js
+var flow = require('nue').flow;
+var as = require('as').as;
+var fs = require('fs');
+
 var myFlow = flow('myFlow')(
   function readFiles(files) {
     this.asyncEach(files, function (file, group) {
