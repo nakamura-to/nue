@@ -908,8 +908,25 @@ describe('flow', function() {
         assert.ok(this.err.cause);
         done();
       }
+    )();    
+  });
+  
+  it('should pass argument with `as.val`', function () {
+    flow('main')(
+      function start() {
+        process.nextTick(this.async(as.val(100)));
+        process.nextTick(this.async(as.val('aaa')));
+        process.nextTick(this.async(as.val()));
+        process.nextTick(this.async({val: as.val('bbb')}));
+      },
+      function end(val1, val2, val3, val4) {
+        if (this.err) throw this.err;
+        assert.strictEqual(100, val1);
+        assert.strictEqual('aaa', val2);
+        assert.strictEqual(undefined, val3);
+        assert.strictEqual('bbb', val4.val);
+      }
     )();
-    
   });
 
 });
