@@ -1,5 +1,11 @@
 # Changelog
 
+ - 0.5.0 (2012/03/04)
+   - New Feature - `nue.as` function is introduced to map asynchronous callback arguments to next function ones.
+   - Change - in a step function, `this.async` accepts arguments mapping definition to pass callback arguments to a next function.
+   - Change - in a step function, `this.forEach` function is removed and `this.asyncEach` is added instead.
+   - Change - in a step function, `this.args` property is removed.
+
  - 0.4.0 (2012/02/27)
    - New Feature - `nue.parallel` is available to execute some steps in parallel.
    - New Feature - in a step function, `this.forEach` function is available to execute a provided function once per array element in parallel.
