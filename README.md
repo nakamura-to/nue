@@ -142,7 +142,7 @@ var myFlow = flow('myFlow')(
   },
   function end(s1, s2, length) {
     if (this.err) throw this.err;
-    console.log(s1 + ' + ' + s2 + ' -> ' + length); // file1 + file2 -> 10
+    console.log(s1 + '.length + ' + s2 + '.length -> ' + length); // file1.length + file2.length -> 10
     console.log('done');
     this.next();
   }
@@ -412,8 +412,6 @@ var fs = require('fs');
 
 var myFlow = flow('myFlow')(
   function readFiles(file1, file2) {
-    if (!file1) this.endWith(new Error('file1 is illegal.'));
-    if (!file2) this.endWith(new Error('file2 is illegal.'));
     fs.readFile(file1, 'utf8', this.async(as(1)));
     fs.readFile(file2, 'utf8', this.async(as(1)));
   },
