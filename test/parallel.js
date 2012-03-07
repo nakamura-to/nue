@@ -27,7 +27,7 @@ describe('parallel', function() {
         assert.ok(a);
         assert.ok(b);
         assert.strictEqual(log, 'ba');
-        assert.deepEqual(['AAA', 'BBB'], results);
+        assert.deepEqual([['AAA'], ['BBB']], results);
         done();
       }
     )();
@@ -47,8 +47,7 @@ describe('parallel', function() {
       ),
       function (results) {
         if (this.err) throw this.err;
-        assert.strictEqual(results[0], 'AAA');
-        assert.strictEqual(results[1], 'BBB');
+        assert.deepEqual(results, [['AAA'], ['BBB']]);
         done();
       }
     )();
@@ -98,8 +97,7 @@ describe('parallel', function() {
       ),
       function (results) {
         if (this.err) throw this.err;
-        assert.strictEqual(results[0], 30);
-        assert.strictEqual(results[1], 200);
+        assert.deepEqual(results, [[30], [200]]);
         done();
       }
     )();

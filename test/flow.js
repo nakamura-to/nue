@@ -827,8 +827,8 @@ describe('flow', function() {
       },
       function end(result1, result2) {
         if (this.err) throw this.err;
-        assert.deepEqual(result1, [30, -10]);
-        assert.deepEqual(result2, [50, 2]);
+        assert.deepEqual(result1, [[30], [-10]]);
+        assert.deepEqual(result2, [[50], [2]]);
         done();
       }
     )();
