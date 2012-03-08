@@ -593,11 +593,9 @@ describe('flow', function() {
       },
       function step4() {
         assert.strictEqual(this.err.name, 'NueAsyncError');
-        assert.strictEqual(this.err.flowName, 'myFlow');
-        assert.strictEqual(this.err.stepName, 'step2');
-        assert.strictEqual(this.err.stepIndex, 1);
-        assert.strictEqual(this.err.asyncIndex, 0);
         assert.ok(this.err.cause);
+        assert.ok(this.err.location);
+        assert.ok(this.err.mapping);
         done();
       }
     )();
@@ -617,9 +615,9 @@ describe('flow', function() {
       myFlow,
       function () {
         assert.strictEqual(this.err.name, 'NueAsyncError');
-        assert.strictEqual(this.err.stepName, 'step2');
-        assert.strictEqual(this.err.stepIndex, 1);
-        assert.strictEqual(this.err.asyncIndex, 0);
+        assert.ok(this.err.cause);
+        assert.ok(this.err.location);
+        assert.ok(this.err.mapping);
         done();
       }
     )();
@@ -891,21 +889,18 @@ describe('flow', function() {
     flow('main')(
       function readFile() {
         process.nextTick(this.async(as.val()));
-        this.asyncEach(['non-existent-file'], function (file, group) {
+        this.asyncEach(['non-existent-file'], function each(file, group) {
           process.nextTick(group.async(as.val()));
           process.nextTick(group.async(as.val()));
           fs.readFile(file, 'utf8', group.async(as(1)));
         });
       },
       function end() {
-        assert.strictEqual(this.err.name, 'NueGroupAsyncError');
-        assert.strictEqual(this.err.flowName, 'main');
-        assert.strictEqual(this.err.stepName, 'readFile');
-        assert.strictEqual(this.err.stepIndex, 0);
-        assert.strictEqual(this.err.asyncIndex, 1);
-        assert.strictEqual(this.err.loopIndex, 0);
-        assert.strictEqual(this.err.groupAsyncIndex, 2);
+        assert.strictEqual(this.err.name, 'NueAsyncError');
+        console.log(this.err);
         assert.ok(this.err.cause);
+        assert.ok(this.err.location);
+        assert.ok(this.err.mapping);
         done();
       }
     )();    
