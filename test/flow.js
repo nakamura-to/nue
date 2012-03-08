@@ -897,7 +897,6 @@ describe('flow', function() {
       },
       function end() {
         assert.strictEqual(this.err.name, 'NueAsyncError');
-        console.log(this.err);
         assert.ok(this.err.cause);
         assert.ok(this.err.location);
         assert.ok(this.err.mapping);
