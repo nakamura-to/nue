@@ -2,7 +2,7 @@ var flow = require('../index').flow;
 var as = require('../index').as;
 
 function sleep(ms) {
-  setTimeout(this.async(as.val()), ms);
+  setTimeout(this.async(as(-1)), ms);
 }
 
 flow('myFlow')(

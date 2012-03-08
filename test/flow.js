@@ -39,18 +39,18 @@ describe('flow', function() {
       function () {
         this.data.a = true;
         this.data.acc = 'a';
-        this.async(as.val())();
+        this.async(as(-1))();
         this.data.b = true;
         this.data.acc += 'b';
-        this.async(as.val())();
+        this.async(as(-1))();
       },
       function () {
         assert.ok(this.data.a);
         assert.ok(this.data.b);
         this.data.d = true;
         this.data.acc += 'd';
-        var f = this.async(as.val());
-        var g = this.async(as.val());
+        var f = this.async(as(-1));
+        var g = this.async(as(-1));
         var self = this;
         process.nextTick(function () {
           self.data.e = true;
@@ -244,22 +244,14 @@ describe('flow', function() {
       function () {
         var f = this.async({number: 1, bool: true, result: as(1)});
         var g = this.async({number: 2, bool: false, result: as(1)});
-        var x = this.async(as.all());
-        var y = this.async(as.all());
         setTimeout(function () {
           f(null, 'hoge');
         }, 10);
         setTimeout(function () {
           g(null, 'foo');
         }, 0);
-        setTimeout(function () {
-          x('bar');
-        }, 0);
-        setTimeout(function () {
-          y();
-        }, 0);
       },
-      function (asyncResult1, asyncResult2, asyncResult3, asyncResult4) {
+      function (asyncResult1, asyncResult2) {
         if (this.err) throw this.err;
         assert.strictEqual(asyncResult1.number, 1);
         assert.strictEqual(asyncResult1.bool, true);
@@ -267,8 +259,6 @@ describe('flow', function() {
         assert.strictEqual(asyncResult2.number, 2);
         assert.strictEqual(asyncResult2.bool, false);
         assert.strictEqual(asyncResult2.result, 'foo');
-        assert.deepEqual(asyncResult3, ['bar']);
-        assert.deepEqual(asyncResult4, []);
         done();
       }
     )();
@@ -631,7 +621,7 @@ describe('flow', function() {
       },
       function step2() {
         assert.strictEqual(this.stepName, 'step2');
-        process.nextTick(this.async(as.val()));
+        process.nextTick(this.async(as(-1)));
       },
       function step3() {
         if (this.err) throw this.err;
@@ -888,10 +878,10 @@ describe('flow', function() {
   it('should handle an async callback error in asyncEach', function (done) {
     flow('main')(
       function readFile() {
-        process.nextTick(this.async(as.val()));
+        process.nextTick(this.async(as(-1)));
         this.asyncEach(['non-existent-file'], function each(file, group) {
-          process.nextTick(group.async(as.val()));
-          process.nextTick(group.async(as.val()));
+          process.nextTick(group.async(as(-1)));
+          process.nextTick(group.async(as(-1)));
           fs.readFile(file, 'utf8', group.async(as(1)));
         });
       },
@@ -908,62 +898,17 @@ describe('flow', function() {
   it('should pass an argument with `as.val`', function () {
     flow('main')(
       function start() {
-        process.nextTick(this.async(as.val(100)));
-        process.nextTick(this.async(as.val('aaa')));
-        process.nextTick(this.async(as.val()));
-        process.nextTick(this.async({val: as.val('bbb')}));
+        process.nextTick(this.async({val: 100}));
+        process.nextTick(this.async({val: 'aaa'}));
+        process.nextTick(this.async(as(-1)));
+        process.nextTick(this.async({val: 'bbb'}));
       },
       function end(val1, val2, val3, val4) {
         if (this.err) throw this.err;
-        assert.strictEqual(100, val1);
-        assert.strictEqual('aaa', val2);
+        assert.strictEqual(100, val1.val);
+        assert.strictEqual('aaa', val2.val);
         assert.strictEqual(undefined, val3);
         assert.strictEqual('bbb', val4.val);
-      }
-    )();
-  });
-
-  it('should pass an argument with `as.all`', function () {
-    flow('main')(
-      function start() {
-        var callback = this.async(as.all());
-        process.nextTick(function () {
-          callback(1, 2, 3);
-        });
-      },
-      function end(result) {
-        if (this.err) throw this.err;
-        assert.deepEqual([1, 2, 3], result);
-      }
-    )();
-  });
-
-  it('should pass an argument with `as.head`', function () {
-    flow('main')(
-      function start() {
-        var callback = this.async(as.head());
-        process.nextTick(function () {
-          callback(1, 2, 3);
-        });
-      },
-      function end(result) {
-        if (this.err) throw this.err;
-        assert.strictEqual(1, result);
-      }
-    )();
-  });
-
-  it('should pass an argument with `as.tail`', function () {
-    flow('main')(
-      function start() {
-        var callback = this.async(as.tail());
-        process.nextTick(function () {
-          callback(null, 1, 2, 3);
-        });
-      },
-      function end(result) {
-        if (this.err) throw this.err;
-        assert.deepEqual([1, 2, 3], result);
       }
     )();
   });
