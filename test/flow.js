@@ -584,8 +584,6 @@ describe('flow', function() {
       function step4() {
         assert.strictEqual(this.err.name, 'NueAsyncError');
         assert.ok(this.err.cause);
-        assert.ok(this.err.location);
-        assert.ok(this.err.mapping);
         done();
       }
     )();
@@ -606,8 +604,6 @@ describe('flow', function() {
       function () {
         assert.strictEqual(this.err.name, 'NueAsyncError');
         assert.ok(this.err.cause);
-        assert.ok(this.err.location);
-        assert.ok(this.err.mapping);
         done();
       }
     )();
@@ -888,8 +884,6 @@ describe('flow', function() {
       function end() {
         assert.strictEqual(this.err.name, 'NueAsyncError');
         assert.ok(this.err.cause);
-        assert.ok(this.err.location);
-        assert.ok(this.err.mapping);
         done();
       }
     )();    
