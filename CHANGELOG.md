@@ -1,5 +1,12 @@
 # Changelog
 
+ - 0.6.0 (2012/03/10)
+   - New Feature - debugging is supported. `NODE_DEBUG=nue` is available.
+   - Change - NueAsyncError is improved. Now NueAsyncError is a plain Error object.
+   - Change - `history` property is removed from the step context.
+   - Change - result array from `this.asyncEach` is not flatten. 
+   - Change - result array from `nue.parallel` is not flatten. 
+
  - 0.5.0 (2012/03/04)
    - New Feature - `nue.as` function is introduced to map asynchronous callback arguments to next function ones.
    - Change - in a step function, `this.async` accepts arguments mapping definition to pass callback arguments to a next function.
