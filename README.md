@@ -107,7 +107,8 @@ child_process.exec('whoami', this.async({stdout: as(1), stderr: as(2)}));
 A function to execute a provided function once per array element asynchronously. 
 
 * `array`: Required. An array.
-* `callback`: Required. A function being executed once per array element.
+* `callback`: Required. A function being executed once per array element. 
+The context object in the callback is same with outer step context object.
 * `element`: Required. A current element.
 * `group`: Required. Provedes `async` function to accept an argument mapping definition and return a callback.
 * `index`: Required. An element index.
