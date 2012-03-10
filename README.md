@@ -74,7 +74,7 @@ If the index is zero, an error handling is skipped.
 
 ### Step Context API
 
-`flow` and `parallel` API accept functions called `step`s. The step context object - it means `this` object in the step function - provides following API.
+`flow` and `parallel` API accept functions called `step`s. Each step context object - it means a `this` object in the step function - provides following API.
 
 #### next([Object values...]) -> Void
 
@@ -521,4 +521,36 @@ describe('function `read`', function () {
     )('file1');
   });
 });
+```
+
+## Debugging
+
+Use `NODE_DEBUG=nue`. 
+
+### Example
+
+> hoge.js
+
+```js
+var flow = require('nue').flow;
+
+flow('hoge')(
+  function add(x, y) {
+    this.next(x + y);
+  },
+  function done(result) {
+    if (this.err) throw this.err;
+    console.log(result);
+  }
+)(10, 20);
+```
+
+> Run and Output
+
+```sh
+$ NODE_DEBUG=nue node hoge.js
+NUE: begin TOP_LEVEL_FLOW. flow: hoge(0), calledAt: /private/tmp/hoge.js:11:1, args: [ 10, 20 ]
+NUE: begin STEP. flow: hoge(0), step: add(0), args: [ 10, 20 ]
+NUE: begin STEP. flow: hoge(0), step: done(1), args: [ 30 ]
+30
 ```
