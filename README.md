@@ -37,100 +37,136 @@ myFlow('file1', 'file2');
 
 ## API
 
-### flow([Function steps...]) -> Function
+### Top Level API
+
+The `nue` module provides following API.
+
+#### flow([Function steps...]) -> Function
 
 Return a function which represents the control-flow.
 
-> Arguments
-
 * `steps`: Optional. Optional functions to execute in series.
 
-> Context
-
-`this` context of each step in a flow has following properties.
-
-* `next`: next([Object values...]) -> Void
- * A function to execute a next step immediately.  
-
-* `async`: async([Object mapping]) -> Function
- * A function to accept an argument mapping definition for a next step and return a callback. 
-`async` can be called many times, but all calls are done in same tick. 
-And all callbacks `async` returns must be called absolutely.
-
-* `asyncEach`: asyncEach(Array array, Function(element, group, elementIndex, traversedArray)) -> Void
- * A function to execute a provided function once per array element asynchronously. 
-The `group` has a `async` function to accept an argument mapping definition and return a callback.
-
-* `asyncEach`: asyncEach(Number concurrency) -> Function
- * A function to accept a concurrency number and return another `asyncEach` function which 
-executes a provided function once per array element asynchronously with the specified cuncurrency. 
-If you use another `forEach` function directly, default concurrency 10 is used.
-
-* `exec`: exec(Function function([values...]), [Object args...], Function callback(err, [values...])) -> Void
- * A function to execute a specified `function` with `args` asynchronously. The `callback` are executed when the `function` is completed.  
-
-* `end`: end([Object values...]) -> Void
- * A function to execute a last step immediately to end a control-flow.
-
-* `endWith`: endWith(Error err) -> Void
- * A function to execute a last step immediately with an error to end a control-flow. 
-The parameter `err` is referred as `this.err` in a last step.
-
-* `data`: Object
- * A object to share arbitrary data between steps in a control-flow.
-
-* `flowName`: String
- * A flow name.
-
-* `stepName`: String
- * A step name.
-
-* `history`: Array
- * An array to contain information about executed steps. This is an EXPERIMETAL FEATURE.
-
-In addition to above ones, the context of a last step has a following property.
-
-* `err`: Object
- * An object represents an error which is thrown with `throw`, passed to `this.endWith` or 
-passed to an async callback as first argument.
-
-### flow(String flowName) -> Function
+#### flow(String flowName) -> Function
 
 Accept a flow name and return another `flow` function.
 
-> Arguments
-
 * `flowName`: Required. A flow name to be used for debug.
 
-### parallel([Function steps...]) -> Function
+#### parallel([Function steps...]) -> Function
 
 Return a function which represents the parallel control-flow.
 The `parallel` must be nested inside a `flow` or another `parallel`.
 
-> Arguments
-
 * `steps`: Optional. Optional functions to execute in parallel.
 
-### parallel(String flowName) -> Function
+#### parallel(String flowName) -> Function
 
 Accept a flow name and return another `parallel` function.
 
-> Arguments
-
 * `flowName`: Required. A flow name to be used for debug.
 
-### as(Number index) -> Object
-
-> Arguments
+#### as(Number index) -> Object
 
 * `index`: Required. An index to map an asynchronous callback argument to a next step argument.
 If the index is zero, an error handling is skipped.
 
-## Arguments Passing Between Functions
+
+### Step Context API
+
+`flow` and `parallel` API accept functions called `step`s. The step context object - it means `this` object in the step function - provides following API.
+
+#### next([Object values...]) -> Void
+
+A function to execute a next step immediately.  
+
+* `values`: Optional. Arguments for a next step.
+
+#### async([Object mapping]) -> Function
+
+A function to accept an argument mapping definition for a next step and return a callback. 
+`async` can be called many times, but all calls are done in same tick. 
+And all callbacks `async` returns must be called.
+
+* `mapping`: Required. An argument mapping definition.
+ 
+To map single argument, call `as` API and pass its result.  
+
+```js
+fs.readFile('file1', 'utf8', this.async(as(1)));
+```
+
+To map multiple arguments, pass an object. 
+
+```js
+child_process.exec('whoami', this.async({stdout: as(1), stderr: as(2)}));
+```
+
+#### asyncEach(Array array, Function callback(element, group, index, traversedArray)) -> Void
+
+A function to execute a provided function once per array element asynchronously. 
+
+* `array`: Required. An array.
+* `callback`: Required. A function being executed once per array element.
+* `element`: Required. A current element.
+* `group`: Required. Provedes `async` function to accept an argument mapping definition and return a callback.
+* `index`: Required. An element index.
+* `traversedArray`: Required. An array object being traversed.
+
+#### asyncEach(Number concurrency) -> Function
+
+A function to accept a concurrency number and return another `asyncEach` function which 
+executes a provided function once per array element asynchronously with the specified cuncurrency. 
+If you use another `forEach` function directly, default concurrency 10 is used.
+
+* `concurrency`: Required. the number of concurrency.
+
+#### exec(Function function, [Object args...], Function callback(err, [values...])) -> Void
+
+A function to execute a specified `function` with `args` asynchronously. 
+
+* `function`: Required. A function to be executed asynchronously.
+* `args`: Optional. Arguments for the `function`.
+* `callback`: Required. A function to be executed when the `function` is completed.
+* `err`: Required. An error in an async call.
+* `values`: Required. Results from the `function`.
+
+#### end([Object values...]) -> Void
+
+A function to execute a last step immediately to end a control-flow.
+
+* `values`: Optional. Arguments for a last step.
+
+#### endWith(Error err) -> Void
+
+A function to execute a last step immediately with an error to end a control-flow. 
+
+* `err`: Required. An error object. This object can be referred as `this.err` in a last step.
+
+#### data : Object
+
+A object to share arbitrary data between steps in a control-flow.
+
+#### flowName : String
+
+A flow name.
+
+#### stepName : String
+
+A step name.
+
+#### err : Object
+
+An error object, which is thrown with `throw`, passed to `this.endWith` or passed to an async callback as first argument.
+This property is accessible in only last steps.
+
+## More Examples
+
+### Arguments Passing Between Functions
 
 Arguments are passed with `this.next` or `this.async`.
 
-### Synchronously
+#### Synchronously
 
 ```js
 var flow = require('nue').flow;
@@ -151,7 +187,7 @@ var myFlow = flow('myFlow')(
 myFlow('file1', 'file2');
 ```
 
-### Asynchronously
+#### Asynchronously
 
 To pass asynchronous call results to a next function, arguments mapping definition is necessary.
 The function `as` accepts an index to specify a callback argument and returns arguments mapping definition.
@@ -203,7 +239,7 @@ var myFlow = flow('myFlow')(
 myFlow('file1', 'file2');
 ```
 
-## Asynchronous Loop
+### Asynchronous Loop
 
 `this.asyncEach` executes a provided function once per array element asynchronously.
 By default, the number of concurrency is 10.
@@ -242,7 +278,7 @@ To change the number of concurrency, specify the number as below.
   },
 ```
 
-## Flow Nesting
+### Flow Nesting
 
 A flow is composable. So it can be nested.
 
@@ -273,7 +309,7 @@ var mainFlow = flow('mainFlow')(
 mainFlow();
 ```
 
-## Asynchronous Flow Execution
+### Asynchronous Flow Execution
 
 A flow can be executed asynchronously.
 
@@ -304,7 +340,7 @@ var mainFlow = flow('mainFlow')(
 mainFlow();
 ```
 
-## Parallel Flow
+### Parallel Flow
 
 In following example, the flow `par1-1` and `par1-2` are executed in parallel.
 
@@ -368,7 +404,7 @@ var myFlow = flow('main')(
 myFlow();
 ```
 
-## Data Sharing Between Functions
+### Data Sharing Between Functions
 
 Each step in a flow can share data through `this.data`.
 `this.data` is shared in a same flow.
@@ -400,7 +436,7 @@ var myFlow = flow('myFlow')(
 myFlow('file1', 'file2');
 ```
 
-## Error Handling
+### Error Handling
 
 In a last step in a flow, `this.err` represents an error which is thrown with `throw`, passed to `this.endWith` or passed to an async callback as first argument. 
 To indicate error handling is completed, you must assign `null` to `this.err`.
@@ -435,7 +471,7 @@ var myFlow = flow('myFlow')(
 myFlow('file1', 'non-existent-file');
 ```
 
-## Unit Test with Mocha
+### Unit Test with Mocha
 
 Following example shows how to test a flow and a function with [Mocha](http://visionmedia.github.com/mocha/).
 
