@@ -3,6 +3,7 @@
  - 0.6.0 (2012/03/10)
    - New Feature - debugging is supported. `NODE_DEBUG=nue` is available.
    - Change - NueAsyncError is improved. Now NueAsyncError is a plain Error object.
+   - Change - `nue.as` arguments is required.  
    - Change - `history` property is removed from the step context.
    - Change - result array from `this.asyncEach` is not flatten. 
    - Change - result array from `nue.parallel` is not flatten. 
