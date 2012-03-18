@@ -118,7 +118,7 @@ The context object in the callback is same with outer step context object.
 
 A function to accept a concurrency number and return another `asyncEach` function which 
 executes a provided function once per array element asynchronously with the specified cuncurrency. 
-If you use another `forEach` function directly, default concurrency 10 is used.
+If you use another `asyncEach` function directly, default concurrency 10 is used.
 
 * `concurrency`: Required. the number of concurrency.
 
