@@ -4,7 +4,7 @@
     "keywords"      : ["control-flow", "async"],
     "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",
     "contributors"  : [],
-    "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/nue.git"},
+    "repository"    : {"type": "git", "url": "git://github.com/nakamura-to/nue.git"},
     "main"          : "./lib/nue.js",
     "devDependencies": { 
       "mocha":      "~0.11.0"
