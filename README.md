@@ -13,7 +13,7 @@ $ npm install nue
 
 ```js
 var flow = require('nue').flow;
-var as = require('as').as;
+var as = require('nue').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
