@@ -88,7 +88,7 @@ A function to accept an argument mapping definition for a next step and return a
 `async` can be called many times, but all calls are done in same tick. 
 And all callbacks `async` returns must be called.
 
-* `mapping`: Required. An argument mapping definition.
+* `mapping`: Optional. An argument mapping definition.
  
 To map single argument, call `as` API and pass its result.  
 
@@ -100,6 +100,12 @@ To map multiple arguments, pass an object.
 
 ```js
 child_process.exec('whoami', this.async({stdout: as(1), stderr: as(2)}));
+```
+
+To map multiple arguments except first one, pass no object. You can get result arguments by index.
+
+```js
+child_process.exec('whoami', this.async());
 ```
 
 #### asyncEach(Array array, Function callback(element, group, index, traversedArray)) -> Void

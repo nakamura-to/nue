@@ -239,7 +239,7 @@ describe('flow', function() {
     )();
   });
 
-  it('should pass arguments using `async` between functions"', function (done) {
+  it('should pass arguments using `async` between functions by name"', function (done) {
     flow(
       function () {
         var f = this.async({number: 1, bool: true, result: as(1)});
@@ -259,6 +259,56 @@ describe('flow', function() {
         assert.strictEqual(asyncResult2.number, 2);
         assert.strictEqual(asyncResult2.bool, false);
         assert.strictEqual(asyncResult2.result, 'foo');
+        done();
+      }
+    )();
+  });
+
+  it('should pass arguments using `async` between functions by index"', function (done) {
+    flow(
+      function () {
+        var f = this.async(1, true, as(1));
+        var g = this.async(2, false, as(1));
+        setTimeout(function () {
+          f(null, 'hoge');
+        }, 10);
+        setTimeout(function () {
+          g(null, 'foo');
+        }, 0);
+      },
+      function (asyncResult1, asyncResult2) {
+        if (this.err) throw this.err;
+        assert.strictEqual(asyncResult1[0], 1);
+        assert.strictEqual(asyncResult1[1], true);
+        assert.strictEqual(asyncResult1[2], 'hoge');
+        assert.strictEqual(asyncResult2[0], 2);
+        assert.strictEqual(asyncResult2[1], false);
+        assert.strictEqual(asyncResult2[2], 'foo');
+        done();
+      }
+    )();
+  });
+
+  it('should pass all arguments except first one using `async` between functions by index"', function (done) {
+    flow(
+      function () {
+        var f = this.async();
+        var g = this.async();
+        setTimeout(function () {
+          f(null, 1, true, 'hoge');
+        }, 10);
+        setTimeout(function () {
+          g(null, 2, false, 'foo');
+        }, 0);
+      },
+      function (asyncResult1, asyncResult2) {
+        if (this.err) throw this.err;
+        assert.strictEqual(asyncResult1[0], 1);
+        assert.strictEqual(asyncResult1[1], true);
+        assert.strictEqual(asyncResult1[2], 'hoge');
+        assert.strictEqual(asyncResult2[0], 2);
+        assert.strictEqual(asyncResult2[1], false);
+        assert.strictEqual(asyncResult2[2], 'foo');
         done();
       }
     )();
@@ -688,6 +738,58 @@ describe('flow', function() {
       }
     )();
   });
+
+  it('should handle each element of array and pass arguments by index', function (done) {
+    var array = [1, 2, 3];
+    var indexes = [];
+    flow('myFlow')(
+      function step1() {
+        this.asyncEach(array, function (element, group, i) {
+          var callback = group.async(as(0), element * 10);
+          process.nextTick(function () {
+            callback(element)
+          });
+        });
+      },
+      function step2(results) {
+        if (this.err) throw this.err;
+        assert.strictEqual(results[0][0], 1);
+        assert.strictEqual(results[0][1], 10);
+        assert.strictEqual(results[1][0], 2);
+        assert.strictEqual(results[1][1], 20);
+        assert.strictEqual(results[2][0], 3);
+        assert.strictEqual(results[2][1], 30);
+        done();
+      }
+    )();
+  });
+
+  it('should handle each element of array and pass all arguments except first one by index', function (done) {
+    var array = [1, 2, 3];
+    var indexes = [];
+    flow('myFlow')(
+      function step1() {
+        this.asyncEach(array, function (element, group, i) {
+          indexes.push(i);
+          var callback = group.async();
+          process.nextTick(function () {
+            callback(null, element, element * 10)
+          });
+        });
+      },
+      function step2(results) {
+        if (this.err) throw this.err;
+        assert.strictEqual(results[0][0], 1);
+        assert.strictEqual(results[0][1], 10);
+        assert.strictEqual(results[1][0], 2);
+        assert.strictEqual(results[1][1], 20);
+        assert.strictEqual(results[2][0], 3);
+        assert.strictEqual(results[2][1], 30);
+        done();
+      }
+    )();
+  });
+
 
   it('should execute other flows', function (done) {
     var add = flow('add')(
