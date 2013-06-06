@@ -203,7 +203,7 @@ When all callbacks are completed, the next function is called with specific argu
 
 ```js
 var flow = require('nue').flow;
-var as = require('as').as;
+var as = require('nue').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
@@ -226,7 +226,7 @@ Arguments mapping definition can contain arbitrary values.
 
 ```js
 var flow = require('nue').flow;
-var as = require('as').as;
+var as = require('nue').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
@@ -253,7 +253,7 @@ By default, the number of concurrency is 10.
 
 ```js
 var flow = require('nue').flow;
-var as = require('as').as;
+var as = require('nue').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
@@ -291,7 +291,7 @@ A flow is composable. So it can be nested.
 
 ```js
 var flow = require('nue').flow;
-var as = require('as').as;
+var as = require('nue').as;
 var fs = require('fs');
 
 var subFlow = flow('subFlow')(
@@ -322,7 +322,7 @@ A flow can be executed asynchronously.
 
 ```js
 var flow = require('nue').flow;
-var as = require('as').as;
+var as = require('nue').as;
 var fs = require('fs');
 
 var subFlow = flow('subFlow')(
@@ -443,7 +443,7 @@ A nesting flow and any nested flows can't share `this.data`.
 
 ```js
 var flow = require('nue').flow;
-var as = require('as').as;
+var as = require('nue').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
@@ -474,7 +474,7 @@ To indicate error handling is completed, you must assign `null` to `this.err`.
 
 ```js
 var flow = require('nue').flow;
-var as = require('as').as;
+var as = require('nue').as;
 var fs = require('fs');
 
 var myFlow = flow('myFlow')(
@@ -508,7 +508,7 @@ Following example shows how to test a flow and a function with [Mocha](http://vi
 
 ```js
 var flow = require('nue').flow;
-var as = require('as').as;
+var as = require('nue').as;
 var fs = require('fs');
 
 var concatFiles = flow(
