@@ -6,8 +6,9 @@
     "contributors"  : [],
     "repository"    : {"type": "git", "url": "git://github.com/nakamura-to/nue.git"},
     "main"          : "./lib/nue.js",
-    "devDependencies": { 
-      "mocha":      "~0.11.0"
+    "devDependencies": {
+      "mocha": "~2.2.1"
     },
-    "version"       : "0.7.0-dev"
+    "version"       : "0.7.1",
+    "scripts": { "test" : "mocha test" }
 }
