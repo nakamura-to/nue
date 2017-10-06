@@ -504,7 +504,7 @@ myFlow('file1', 'non-existent-file');
 
 ### Unit Test with Mocha
 
-Following example shows how to test a flow and a function with [Mocha](http://visionmedia.github.com/mocha/).
+Following example shows how to test a flow and a function with [Mocha](http://mochajs.org/).
 
 ```js
 var flow = require('nue').flow;
